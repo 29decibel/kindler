@@ -9,7 +9,7 @@ url1,url2,url3
 
 book.mobi
 
-### command use
+### Command Use
 kindler url1 url2 url3 url4 -o test.mobi
 
 outputs : test.mobi
@@ -18,11 +18,11 @@ outputs : test.mobi
 ```ruby
 
 book = Kindler::Book.new
-book.add_page url1
-book.add_page url2
-book.add_pages url3,url4
+book.add_page 'url1'
+book.add_page 'url2'
+book.add_pages 'url3','url4'
 
-book.generate test.mobi
+book.generate 'test.mobi'
 # outputs is test.mobi
 ```
 
