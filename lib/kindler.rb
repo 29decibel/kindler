@@ -30,11 +30,17 @@ module Kindler
 			# remove previous
 			FileUtils.rm_rf tmp_dir if File.exist?(tmp_dir)
 			FileUtils.mkdir_p tmp_dir unless File.exist?(tmp_dir)
+			puts "----------------------begin generate htmls---------------------"
 			generate_html
+			puts "----------------------begin generate toc---------------------"
 			generate_toc
+			puts "----------------------begin generate opf---------------------"
 			generate_opf
+			puts "----------------------begin generate ncx---------------------"
 			generate_ncx
+			puts "----------------------begin generate mobi file---------------------"
 			kindlegen
+			puts "----------------------Done---------------------"
 		end
 
 		private
@@ -88,20 +94,42 @@ module Kindler
 						<text>#{@author}</text>
 					</docAuthor>
 					<navMap>
-				NCX
-			contents << <<-NAV
-			<navPoint id="navpoint-1" playOrder="1">
-				<navLabel><text>Table Of Contents</text></navLabel>
-				<content src="contents.html"/>
-			</navPoint>
-			NAV
+			NCX
+			# this navPoint seems not useful
+			# contents << <<-NAV
+			# <navPoint id="navpoint-1" playOrder="1">
+			# 	<navLabel><text>Table Of Contents</text></navLabel>
+			# 	<content src="contents.html"/>
+			# </navPoint>
+			# NAV
+			####################### periodocal , magzine like format #########################
+			# <navPoint playOrder="0" class="periodical" id="periodical">
+			#			<mbp:meta-img src="masthead.gif" name="mastheadImage"/>
+			#			<navLabel>
+			#				<text>Table of Contents</text>
+			#			</navLabel>
+			#			<content src="contents.html"/>
+			#			<navPoint playOrder="1" class="section" id="Main-section">
+			#				<navLabel>
+			#					<text>Main section</text>
+			#				</navLabel>
+			#				<content src="001.html"/>
+			#				<navPoint playOrder="2" class="article" id="item-001">
+			#					<navLabel>
+			#						<text>Nick Clegg and David Cameron agree key changes on NHS plans</text>
+			#					</navLabel>
+			#					<content src="001.html"/>
+			#					<mbp:meta name="description">Deputy PM tells Andrew Marr show that GPs should not be forced to sign up to new commissioning consortiums</mbp:meta>
+			#					<mbp:meta name="author">Nicholas Watt and Denis Campbell</mbp:meta>
+			#				</navPoint>
+			# ####################################################################################
 			files_count = 2
 			@doc_infos.each do |url,infos|
 				nav_point = <<-NAV
-				<navPoint id="navpoint-#{files_count}" playOrder="#{files_count}">
-					<navLabel><text>#{infos[:title]}</text></navLabel>
-					<content src="#{(files_count-1).to_s.rjust(3,'0')}.html"/>
-				</navPoint>
+					<navPoint id="navpoint-#{files_count}" playOrder="#{files_count}">
+						<navLabel><text>#{infos[:title]}</text></navLabel>
+						<content src="#{(files_count-1).to_s.rjust(3,'0')}.html"/>
+					</navPoint>
 				NAV
 				contents << nav_point
 				files_count += 1
@@ -111,6 +139,10 @@ module Kindler
 		end
 
 		def generate_opf
+			# mark mobi as magzine format
+			# <x-metadata>
+			#	 <output content-type="application/x-mobipocket-subscription-magazine" encoding="utf-8"/>
+			# </x-metadata>
 			contents = <<-HTML
 				<?xml version='1.0' encoding='utf-8'?>
 				<package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="#{@title}">
@@ -122,12 +154,10 @@ module Kindler
 							<dc:creator>Kindler- 29decibel</dc:creator>
 							<dc:publisher>Kindler- 29decibel</dc:publisher>
 							<dc:subject>News</dc:subject>
+							<dc:identifier id="#{@title}">#{@title}</dc:identifier>
 							<dc:date>#{Time.now.to_date}/dc:date>
 							<dc:description>Kindler generated book</dc:description>
 						</dc-metadata>
-						<x-metadata>
-							<output content-type="application/x-mobipocket-subscription-magazine" encoding="utf-8"/>
-						</x-metadata>
 					</metadata>
 					<manifest>
 			HTML
@@ -177,7 +207,7 @@ module Kindler
 			result << '<html><head>'
 			result << "<meta content='text/html; charset=utf-8' http-equiv='Content-Type'/>"
 			result << '</head><body>'
-			result << "<h1>#{title}</h1>"
+			result << "<h3>#{title}</h3>"
 			result << content
 			result << '</body></html>'
 		end
