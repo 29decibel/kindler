@@ -4,12 +4,14 @@ require "open-uri"
 
 module Kindler
 	class Book
+		class KindlerError < StandardError;end
 		attr_accessor :urls
 		TMP_DIR = 'kindler_generated_tmp'
 
 		def initialize(options={})
 			@urls = options[:urls] || {}
 			@title = options[:title] || ''
+			raise KindlerError.new("urls option could not be empty") if @urls.empty?
 			@author = options[:author] || ''
 			@doc_infos = {}
 			# init doc infos by url
@@ -22,11 +24,11 @@ module Kindler
 			@doc_infos[url] = {}
 		end
 
-		def generate(title)
+		def generate(title='')
 			# make tmp directory
 			# remove previous
-			FileUtils.rm_rf TMP_DIR if File.exist?(TMP_DIR)
-			FileUtils.mkdir_p TMP_DIR unless File.exist?(TMP_DIR)
+			FileUtils.rm_rf tmp_dir if File.exist?(tmp_dir)
+			FileUtils.mkdir_p tmp_dir unless File.exist?(tmp_dir)
 			generate_html
 			generate_toc
 			generate_opf
@@ -40,7 +42,7 @@ module Kindler
 		# you can use "sudo brew install " to install it
 		def kindlegen
 			puts 'begin generate mobi'
-			system("kindlegen #{TMP_DIR}/#{@title}.opf")
+			system("kindlegen #{tmp_dir}/#{@title}.opf ")
 		end
 
 		def generate_toc
@@ -79,10 +81,10 @@ module Kindler
 						<meta name="dtb:maxPageNumber" content="0"/>
 					</head>
 					<docTitle>
-						<text>My_Title</text>
+						<text>#{@title}</text>
 					</docTitle>
 					<docAuthor>
-						<text>Benthien, George</text>
+						<text>#{@author}</text>
 					</docAuthor>
 					<navMap>
 				NCX
@@ -104,7 +106,7 @@ module Kindler
 				files_count += 1
 			end
 			contents << "</navMap></ncx>"
-			File.open("#{TMP_DIR}/nav-contents.ncx",'w') { |f| f.puts contents }
+			File.open("#{tmp_dir}/nav-contents.ncx",'w') { |f| f.puts contents }
 		end
 
 		def generate_opf
@@ -144,7 +146,7 @@ module Kindler
 				files_count += 1
 			end
 			contents << "</spine><guide><reference href='contents.html' type='toc' title='Table of Contents'/></guide></package>"
-			File.open("#{TMP_DIR}/#{@title}.opf",'w') {|f| f.puts contents}
+			File.open("#{tmp_dir}/#{@title}.opf",'w') {|f| f.puts contents}
 		end
 
 		def generate_html
@@ -164,7 +166,7 @@ module Kindler
 		end
 
 		def file_path(file_name)
-			"#{TMP_DIR}/#{file_name}.html"
+			"#{tmp_dir}/#{file_name}.html"
 		end
 
 		def html_wrap(title,content)
@@ -181,6 +183,10 @@ module Kindler
 			puts "begin fetch url : #{url}"
 			source = open(url).read
 			Readability::Document.new(source)
+		end
+
+		def tmp_dir
+			"#{TMP_DIR}_#{@title.gsub(' ','_')}"
 		end
 
 	end
