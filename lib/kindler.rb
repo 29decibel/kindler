@@ -1,6 +1,7 @@
 require "kindler/version"
 require "readability"
 require "open-uri"
+require 'mini_magick'
 
 module Kindler
 	class Book
@@ -138,6 +139,7 @@ module Kindler
 			end
 			contents << "<item href='contents.html' media-type='application/xhtml+xml' id='contents'/>"
 			contents << "<item href='nav-contents.ncx' media-type='application/x-dtbncx+xml' id='nav-contents'/>"
+			contents << "</manifest>"
 			contents << "<spine toc='nav-contents'>"
 			contents << "<itemref idref='contents'/>"
 			files_count = 1
@@ -152,6 +154,7 @@ module Kindler
 		def generate_html
 			@doc_infos.each do |url,infos|
 				article = readable_article(url)
+				puts article.images
 				infos[:content] = html_wrap(article.title,article.content)
 				infos[:title] = article.title
 			end
