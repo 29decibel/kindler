@@ -2,12 +2,13 @@ require "kindler/version"
 require "readability"
 require "open-uri"
 require 'mini_magick'
+require 'kindler/railtie' if defined?(Rails)
 
 module Kindler
 	class Book
 		class KindlerError < StandardError;end
 		attr_accessor :urls
-		TMP_DIR = 'kindler_generated_tmp'
+		TMP_DIR = 'kindler_generated_mobi'
 
 		def initialize(options={})
 			@urls = options[:urls] || {}
@@ -26,21 +27,14 @@ module Kindler
 		end
 
 		def generate(title='')
-			# make tmp directory
-			# remove previous
-			FileUtils.rm_rf tmp_dir if File.exist?(tmp_dir)
-			FileUtils.mkdir_p tmp_dir unless File.exist?(tmp_dir)
-			puts "----------------------begin generate htmls---------------------"
+			make_generated_dirs
+			# generate
 			generate_html
-			puts "----------------------begin generate toc---------------------"
 			generate_toc
-			puts "----------------------begin generate opf---------------------"
 			generate_opf
-			puts "----------------------begin generate ncx---------------------"
 			generate_ncx
-			puts "----------------------begin generate mobi file---------------------"
 			kindlegen
-			puts "----------------------Done---------------------"
+			# clear
 		end
 
 		private
@@ -220,6 +214,15 @@ module Kindler
 
 		def tmp_dir
 			"#{TMP_DIR}_#{@title.gsub(' ','_')}"
+		end
+
+		def make_generated_dirs
+			FileUtils.rm_rf tmp_dir if File.exist?(tmp_dir)
+			FileUtils.mkdir_p tmp_dir unless File.exist?(tmp_dir)
+		end
+
+		def clear_tmp_dirs
+			
 		end
 
 	end
