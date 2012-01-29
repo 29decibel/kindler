@@ -16,14 +16,15 @@ outputs : test.mobi
 
 ### Api use
 ```ruby
-
-book = Kindler::Book.new
-book.add_page 'url1'
-book.add_page 'url2'
-book.add_pages 'url3','url4'
-
-book.generate 'test.mobi'
-# outputs is test.mobi
+# generate my book
+book = Kindler::Book.new ({:urls=>["http://blog.farmostwood.net/643.html",
+													"http://www.ifanr.com/69878","http://www.oneplus.info/archives/455"],
+													:title=>'Test_book',:author=>'mike'})
+# you will get my_book.mobi file
+book.generate 'my_book'
 ```
+
+
+Hope you love it !
 
 
