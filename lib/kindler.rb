@@ -7,12 +7,18 @@ require 'kindler/railtie' if defined?(Rails)
 module Kindler
 	class Book
 		class KindlerError < StandardError;end
-		attr_accessor :urls
+		attr_accessor :urls,:title,:author
 		TMP_DIR = 'kindler_generated_mobi'
 
+		# availabel options
+		# @param options [Hash]
+		# @option urls [Array] urls to generate
+		# @option title [String] book title
+		# @option output_dir [String] directory want to generate
 		def initialize(options={})
 			@urls = options[:urls] || {}
 			@title = options[:title] || ''
+			@output_dir = options[:output_dir] || './'
 			raise KindlerError.new("urls option could not be empty") if @urls.empty?
 			@author = options[:author] || ''
 			@doc_infos = {}
@@ -38,7 +44,6 @@ module Kindler
 		end
 
 		private
-
 		# make sure kindlegen is installed
 		# you can use "sudo brew install " to install it
 		def kindlegen
@@ -213,7 +218,7 @@ module Kindler
 		end
 
 		def tmp_dir
-			"#{TMP_DIR}_#{@title.gsub(' ','_')}"
+			File.join @output_dir,"#{TMP_DIR}_#{@title.gsub(' ','_')}"
 		end
 
 		def make_generated_dirs

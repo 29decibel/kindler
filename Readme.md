@@ -1,5 +1,6 @@
 ### Todo
 1.show images within page
+2.support magzine like format
 
 ### A kindle mobi book generator
 which receive a couple of urls then output one mobi file
