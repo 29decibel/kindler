@@ -16,13 +16,16 @@ module Kindler
 		# @option title [String] book title
 		# @option output_dir [String] directory want to generate
 		# @option debug [Boolean] whether puts debug infos
+		# @option keep_image [Boolean] whether keep images, default to true
 		def initialize(options={})
 			@urls = options[:urls] || {}
 			@title = options[:title] || ''
 			@output_dir = options[:output_dir] || './'
+			@keep_image = options[:keep_image] || true
 			@debug = options[:debug]
 			raise KindlerError.new("urls option could not be empty") if @urls.empty?
 			@author = options[:author] || ''
+			@images = []
 			@doc_infos = {}
 			# init doc infos by url
 			@urls.each {|url| @doc_infos[url]= {} }
@@ -43,9 +46,11 @@ module Kindler
 			make_generated_dirs
 			# generate
 			generate_html
+			localize_images
 			generate_toc
 			generate_opf
 			generate_ncx
+			write_to_disk
 			kindlegen
 			# clear
 		end
@@ -82,9 +87,8 @@ module Kindler
 			end
 			# append footer
 			contents << "</ul></body></html>"
-			File.open(file_path('contents'),'w') do |f|
-				f.puts contents
-			end
+
+			@toc = contents
 		end
 
 		# generate ncx , which is navigation
@@ -147,7 +151,7 @@ module Kindler
 				files_count += 1
 			end
 			contents << "</navMap></ncx>"
-			File.open("#{tmp_dir}/nav-contents.ncx",'w') { |f| f.puts contents }
+			@ncx = contents
 		end
 
 		# generate the opf, manifest of book,including all articles and images and css
@@ -191,7 +195,7 @@ module Kindler
 				files_count += 1
 			end
 			contents << "</spine><guide><reference href='contents.html' type='toc' title='Table of Contents'/></guide></package>"
-			File.open("#{tmp_dir}/#{@title}.opf",'w') {|f| f.puts contents}
+			@opf = contents
 		end
 
 		# generate every url to article in readable format
@@ -202,13 +206,29 @@ module Kindler
 				infos[:content] = html_wrap(article.title,article.content)
 				infos[:title] = article.title
 			end
-			# make html files
-			files_count = 1
+		end
+
+		def localize_images
+			images_count = 1
 			@doc_infos.each do |url,infos|
-				File.open(file_path(files_count.to_s.rjust(3,'0')),'w') do |f|
-					f.puts infos[:content]
+				article = Nokogiri::HTML(infos[:content])
+				article.css('img').each do |img|
+					image_remote_address = img.attr('src')
+					image_local_address = File.join(tmp_dir,"#{images_count}#{File.extname(image_remote_address)}")
+					# download images
+					debug "begin fetch image #{image_remote_address}"
+					debug "save to #{image_local_address}"
+					File.open(image_local_address,'w') do |f|
+						f.puts open(image_remote_address).read
+					end
+					debug 'Image saved'
+					# replace local url address
+					img.attributes['src'].value = "#{images_count}#{File.extname(image_remote_address)}"
+					infos[:content] = article.inner_html
+					# add to manifest
+					@images << "#{images_count}#{File.extname(image_remote_address)}"
+					images_count += 1 
 				end
-				files_count += 1
 			end
 		end
 
@@ -232,7 +252,11 @@ module Kindler
 		def readable_article(url)
 			debug "begin fetch url : #{url}"
 			source = open(url).read
-			Readability::Document.new(source)
+			if @keep_image
+				Readability::Document.new(source,:tags=>%w(div p img a),:attributes => %w[src href],:remove_empty_nodes => false)
+			else
+				Readability::Document.new(source)
+			end
 		end
 
 		# the dir path to generated files
@@ -244,6 +268,21 @@ module Kindler
 		def make_generated_dirs
 			FileUtils.rm_rf tmp_dir if File.exist?(tmp_dir)
 			FileUtils.mkdir_p tmp_dir unless File.exist?(tmp_dir)
+		end
+
+		def write_to_disk
+			File.open("#{tmp_dir}/nav-contents.ncx",'w') { |f| f.puts @ncx }
+			File.open(file_path('contents'),'w') {|f| f.puts @toc }
+			File.open("#{tmp_dir}/#{@title}.opf",'w') {|f| f.puts @opf}
+			# make html files
+			files_count = 1
+			@doc_infos.each do |url,infos|
+				File.open(file_path(files_count.to_s.rjust(3,'0')),'w') do |f|
+					f.puts infos[:content]
+				end
+				files_count += 1
+			end
+
 		end
 
 		# exist to clear tmp files such as ncx,opf or html other than mobi file
