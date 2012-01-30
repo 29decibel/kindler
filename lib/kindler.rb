@@ -36,6 +36,7 @@ module Kindler
 			@doc_infos[url] = {}
 		end
 
+		# generate books by given urls
 		def generate(title='')
 			make_generated_dirs
 			# generate
@@ -47,6 +48,7 @@ module Kindler
 			# clear
 		end
 
+		# check mobi file is generated already
 		def mobi_generated?
 			File.exist? "#{tmp_dir}/#{@title}.mobi"
 		end
@@ -83,6 +85,7 @@ module Kindler
 			end
 		end
 
+		# generate ncx , which is navigation
 		def generate_ncx
 			contents = <<-NCX
 				<?xml version="1.0" encoding="UTF-8"?>
@@ -145,6 +148,7 @@ module Kindler
 			File.open("#{tmp_dir}/nav-contents.ncx",'w') { |f| f.puts contents }
 		end
 
+		# generate the opf, manifest of book,including all articles and images and css
 		def generate_opf
 			# mark mobi as magzine format
 			# <x-metadata>
@@ -188,6 +192,7 @@ module Kindler
 			File.open("#{tmp_dir}/#{@title}.opf",'w') {|f| f.puts contents}
 		end
 
+		# generate every url to article in readable format
 		def generate_html
 			@doc_infos.each do |url,infos|
 				article = readable_article(url)
@@ -205,10 +210,12 @@ module Kindler
 			end
 		end
 
+		# html file path
 		def file_path(file_name)
 			"#{tmp_dir}/#{file_name}.html"
 		end
 
+		# wrap readable contents with in html format
 		def html_wrap(title,content)
 			result = ''
 			result << '<html><head>'
@@ -219,21 +226,26 @@ module Kindler
 			result << '</body></html>'
 		end
 
+		# get readable document by url, using ruby-readability here
 		def readable_article(url)
 			puts "begin fetch url : #{url}"
 			source = open(url).read
 			Readability::Document.new(source)
 		end
 
+		# the dir path to generated files
 		def tmp_dir
 			File.join @output_dir,"#{TMP_DIR}_#{@title.gsub(' ','_')}"
 		end
 
+		# create dirs of generated files
 		def make_generated_dirs
 			FileUtils.rm_rf tmp_dir if File.exist?(tmp_dir)
 			FileUtils.mkdir_p tmp_dir unless File.exist?(tmp_dir)
 		end
 
+		# exist to clear tmp files such as ncx,opf or html other than mobi file
+		# keep them right now
 		def clear_tmp_dirs
 			
 		end
