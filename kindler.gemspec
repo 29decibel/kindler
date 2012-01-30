@@ -4,8 +4,8 @@ require File.expand_path('../lib/kindler/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["dongbin.li"]
   gem.email         = ["mike.d.1984@gmail.com"]
-  gem.description   = %q{a simple gem to generate kindle mobi book}
-  gem.summary       = %q{a simple gem to generate kindle mobi book}
+  gem.description   = %q{kindler is a rubygem allow you to generate kindle mobi book from urls very easily}
+  gem.summary       = %q{kindler is a rubygem allow you to generate kindle mobi book from urls very easily}
   gem.homepage      = "https://github.com/29decibel/kindler"
 
 	gem.rubyforge_project = "kindler"
