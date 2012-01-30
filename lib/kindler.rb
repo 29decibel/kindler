@@ -1,4 +1,5 @@
-require "kindler/version"
+require 'rubygems'
+require File.dirname(__FILE__)+"/kindler/version"
 require "readability"
 require "open-uri"
 # require 'mini_magick'
@@ -214,6 +215,9 @@ module Kindler
 				article = Nokogiri::HTML(infos[:content])
 				article.css('img').each do |img|
 					image_remote_address = img.attr('src')
+					unless image_remote_address.start_with?('http')
+						image_remote_address = "http://#{URI(url).host}#{image_remote_address}"
+					end
 					image_local_address = File.join(tmp_dir,"#{images_count}#{File.extname(image_remote_address)}")
 					# download images
 					debug "begin fetch image #{image_remote_address}"
