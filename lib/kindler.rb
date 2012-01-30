@@ -15,10 +15,12 @@ module Kindler
 		# @option urls [Array] urls to generate
 		# @option title [String] book title
 		# @option output_dir [String] directory want to generate
+		# @option debug [Boolean] whether puts debug infos
 		def initialize(options={})
 			@urls = options[:urls] || {}
 			@title = options[:title] || ''
 			@output_dir = options[:output_dir] || './'
+			@debug = options[:debug]
 			raise KindlerError.new("urls option could not be empty") if @urls.empty?
 			@author = options[:author] || ''
 			@doc_infos = {}
@@ -57,7 +59,7 @@ module Kindler
 		# make sure kindlegen is installed
 		# you can use "sudo brew install " to install it
 		def kindlegen
-			puts 'begin generate mobi'
+			debug 'begin generate mobi'
 			system("kindlegen #{tmp_dir}/#{@title}.opf ")
 		end
 
@@ -228,7 +230,7 @@ module Kindler
 
 		# get readable document by url, using ruby-readability here
 		def readable_article(url)
-			puts "begin fetch url : #{url}"
+			debug "begin fetch url : #{url}"
 			source = open(url).read
 			Readability::Document.new(source)
 		end
@@ -248,6 +250,12 @@ module Kindler
 		# keep them right now
 		def clear_tmp_dirs
 			
+		end
+
+		def debug(str)
+			return unless @debug
+			Rails.logger.info(str) if defined?(Rails)
+			puts str
 		end
 
 	end

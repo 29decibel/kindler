@@ -5,7 +5,7 @@ describe "Mobi html file generator" do
 		title = "Test_book"
 		book = Kindler::Book.new ({:urls=>["http://blog.farmostwood.net/643.html",
 															"http://www.ifanr.com/69878","http://www.oneplus.info/archives/455"],
-															:title=>title,:author=>'mike'})
+															:title=>title,:author=>'mike',:debug=>true,:tags=>%w(div p img)})
 		book.generate
 		File.exist?(mobi_book_path(title)).should == true
 	end
@@ -20,7 +20,7 @@ describe "Mobi html file generator" do
 		urls << "http://tumblr.intranation.com/post/766290565/how-set-up-your-own-private-git-server-linux"
 		urls << "http://antirez.com/post/what-is-wrong-with-2006-programming.html"
 		urls << "http://fak3r.com/2009/09/14/howto-build-your-own-open-source-dropbox-clone/"
-		book = Kindler::Book.new :urls=>urls,:title=>title,:author=>'mike'
+		book = Kindler::Book.new :urls=>urls,:title=>title,:author=>'mike',:debug=>true
 		book.generate 
 		File.exist?(mobi_book_path(title)).should == true
 	end
@@ -31,7 +31,7 @@ describe "Mobi html file generator" do
 		urls << "http://www.wowsai.com/home/space.php?uid=1&do=blog&id=4362&classid=2"
 		urls << "http://www.honeykennedy.com/2012/01/miss-moss-love-letters/"
 		urls << "http://www.mysenz.com/?p=3692"
-		book = Kindler::Book.new :urls=>urls,:title=>title,:author=>'mike',:output_dir=>'/Users/lidongbin/projects'
+		book = Kindler::Book.new :urls=>urls,:title=>title,:author=>'mike',:output_dir=>'/Users/lidongbin/projects',:debug=>true
 		book.generate 
 		File.exist?(mobi_book_path(title,'/Users/lidongbin/projects')).should == true
 	end
