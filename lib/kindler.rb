@@ -1,7 +1,7 @@
 require "kindler/version"
 require "readability"
 require "open-uri"
-require 'mini_magick'
+# require 'mini_magick'
 require 'kindler/railtie' if defined?(Rails)
 
 module Kindler
@@ -26,7 +26,11 @@ module Kindler
 			@urls.each {|url| @doc_infos[url]= {} }
 		end
 
-		def add_url(url)
+		# add url to book
+		# @param url [String] url to add to book
+		# @param options [Hash]
+		# @option section [Symbol] indicate which section the url belongs to,if not empty the book will be generated with magzine style
+		def add_url(url,options={})
 			return if @doc_infos[url]
 			@urls << url
 			@doc_infos[url] = {}
@@ -41,6 +45,10 @@ module Kindler
 			generate_ncx
 			kindlegen
 			# clear
+		end
+
+		def mobi_generated?
+			File.exist? "#{tmp_dir}/#{@title}.mobi"
 		end
 
 		private
@@ -183,7 +191,7 @@ module Kindler
 		def generate_html
 			@doc_infos.each do |url,infos|
 				article = readable_article(url)
-				puts article.images
+				# puts article.images
 				infos[:content] = html_wrap(article.title,article.content)
 				infos[:title] = article.title
 			end
