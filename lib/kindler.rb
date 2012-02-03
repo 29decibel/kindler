@@ -199,8 +199,8 @@ module Kindler
 						# download images
 						debug "begin fetch image #{image_remote_address}"
 						debug "save to #{image_local_address}"
-						File.open(image_local_address,'w') do |f|
-							f.puts open(image_remote_address).read
+						File.open(image_local_address,'wb') do |f|
+							f.write open(image_remote_address).read
 						end
 						debug 'Image saved'
 						# replace local url address
@@ -260,14 +260,14 @@ module Kindler
 		end
 
 		def write_to_disk
-			File.open("#{tmp_dir}/nav-contents.ncx",'w') { |f| f.puts @ncx }
-			File.open(file_path('contents'),'w') {|f| f.puts @toc }
-			File.open("#{tmp_dir}/#{@title}.opf",'w') {|f| f.puts @opf}
+			File.open("#{tmp_dir}/nav-contents.ncx",'wb') { |f| f.write @ncx }
+			File.open(file_path('contents'),'wb') {|f| f.write @toc }
+			File.open("#{tmp_dir}/#{@title}.opf",'wb') {|f| f.write @opf}
 			# make html files
 			files_count = 1
 			@doc_infos.each do |url,infos|
-				File.open(file_path(files_count.to_s.rjust(3,'0')),'w') do |f|
-					f.puts infos[:content]
+				File.open(file_path(files_count.to_s.rjust(3,'0')),'wb') do |f|
+					f.write infos[:content]
 				end
 				files_count += 1
 			end

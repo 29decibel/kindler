@@ -1,6 +1,7 @@
 ### Todo
 support magzine like format
 
+
 ### Installation
 ```ruby
 gem 'kindler'
