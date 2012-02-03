@@ -1,9 +1,10 @@
+#encoding: utf-8
 require 'rubygems'
-require File.dirname(__FILE__)+"/kindler/version"
 require "readability"
 require "open-uri"
 # require 'mini_magick'
-require 'kindler/railtie' if defined?(Rails)
+require_relative 'kindler/railtie' if defined?(Rails)
+require_relative "kindler/version"
 
 module Kindler
 	class Book
@@ -189,24 +190,28 @@ module Kindler
 			@doc_infos.each do |url,infos|
 				article = Nokogiri::HTML(infos[:content])
 				article.css('img').each do |img|
-					image_remote_address = img.attr('src')
-					unless image_remote_address.start_with?('http')
-						image_remote_address = "http://#{URI(url).host}#{image_remote_address}"
+					begin
+						image_remote_address = img.attr('src')
+						unless image_remote_address.start_with?('http')
+							image_remote_address = "http://#{URI(url).host}#{image_remote_address}"
+						end
+						image_local_address = File.join(tmp_dir,"#{images_count}#{File.extname(image_remote_address)}")
+						# download images
+						debug "begin fetch image #{image_remote_address}"
+						debug "save to #{image_local_address}"
+						File.open(image_local_address,'w') do |f|
+							f.puts open(image_remote_address).read
+						end
+						debug 'Image saved'
+						# replace local url address
+						img.attributes['src'].value = "#{images_count}#{File.extname(image_remote_address)}"
+						infos[:content] = article.inner_html
+						# add to manifest
+						@images << "#{images_count}#{File.extname(image_remote_address)}"
+						images_count += 1 
+					rescue Exception => e
+						debug "got error when fetch and save image: #{e}"
 					end
-					image_local_address = File.join(tmp_dir,"#{images_count}#{File.extname(image_remote_address)}")
-					# download images
-					debug "begin fetch image #{image_remote_address}"
-					debug "save to #{image_local_address}"
-					File.open(image_local_address,'w') do |f|
-						f.puts open(image_remote_address).read
-					end
-					debug 'Image saved'
-					# replace local url address
-					img.attributes['src'].value = "#{images_count}#{File.extname(image_remote_address)}"
-					infos[:content] = article.inner_html
-					# add to manifest
-					@images << "#{images_count}#{File.extname(image_remote_address)}"
-					images_count += 1 
 				end
 			end
 		end
