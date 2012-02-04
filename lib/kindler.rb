@@ -9,7 +9,7 @@ require_relative "kindler/version"
 module Kindler
 	class Book
 		class KindlerError < StandardError;end
-		attr_accessor :urls,:title,:author
+		attr_accessor :urls,:title,:author,:doc_infos
 		TMP_DIR = 'kindler_generated_mobi'
 
 		# availabel options
