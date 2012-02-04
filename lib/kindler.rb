@@ -135,8 +135,8 @@ module Kindler
 			contents = ''
 			pages_by_section = {}
 			pages.each do |page|
-				pages_by_section[page[:title]] ||= []
-				pages_by_section[page[:title]] << page
+				pages_by_section[page[:section]] ||= []
+				pages_by_section[page[:section]] << page
 			end
 			contents << <<-MAG
 			<navPoint playOrder="0" class="periodical" id="periodical">
