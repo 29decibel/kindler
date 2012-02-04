@@ -4,13 +4,13 @@ require File.expand_path('../lib/kindler/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["dongbin.li"]
   gem.email         = ["mike.d.1984@gmail.com"]
-  gem.description   = %q{kindler is a rubygem allow you to generate kindle mobi book from urls very easily}
-  gem.summary       = %q{kindler is a rubygem allow you to generate kindle mobi book from urls very easily}
+  gem.description   = %q{kindler is a rubygem allow you to generate kindle mobi book very easily}
+  gem.summary       = %q{kindler is a rubygem allow you to generate kindle mobi book very easily}
   gem.homepage      = "https://github.com/29decibel/kindler"
 
 	gem.rubyforge_project = "kindler"
-	gem.add_dependency 'mini_magick'
-	gem.add_dependency 'ruby-readability'	
+
+	gem.add_dependency 'nokogiri'
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.files         = `git ls-files`.split("\n")

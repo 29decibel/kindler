@@ -1,7 +1,7 @@
 #encoding: utf-8
 require 'rubygems'
-require "readability"
 require "open-uri"
+require "nokogiri"
 # require 'mini_magick'
 require_relative 'kindler/railtie' if defined?(Rails)
 require_relative "kindler/version"
@@ -9,52 +9,48 @@ require_relative "kindler/version"
 module Kindler
 	class Book
 		class KindlerError < StandardError;end
-		attr_accessor :urls,:title,:author,:doc_infos
+		attr_accessor :title,:author,:pages,:local_images,:mobi_type
 		TMP_DIR = 'kindler_generated_mobi'
+		DEFAULT_SECTION = "All Pages"
+		PAGE_ATTRIBUTES = %w(wrap title author content section)
 
 		# availabel options
 		# @param options [Hash]
-		# @option urls [Array] urls to generate
 		# @option title [String] book title
 		# @option output_dir [String] directory want to generate
 		# @option debug [Boolean] whether puts debug infos
 		# @option keep_image [Boolean] whether keep images, default to true
 		def initialize(options={})
-			@urls = options[:urls] || {}
-			@title = options[:title] || ''
 			@output_dir = options[:output_dir] || './'
 			@keep_image = options[:keep_image] || true
 			@debug = options[:debug]
-			raise KindlerError.new("urls option could not be empty") if @urls.empty?
+			@title = options[:title] || ''
 			@author = options[:author] || ''
-			@images = []
-			@doc_infos = {}
-			# init doc infos by url
-			@urls.each {|url| @doc_infos[url]= {} }
+			@mobi_type = options[:mobi_type] || :magzine
+			@pages = []
+			@local_images = []
+			raise KindlerError.new("must provide the book title ") unless title
 		end
 
-		# add url to book
-		# @param url [String] url to add to book
-		# @param options [Hash]
-		# @option section [Symbol] indicate which section the url belongs to,if not empty the book will be generated with magzine style
-		def add_url(url,options={})
-			return if @doc_infos[url]
-			@urls << url
-			@doc_infos[url] = {}
+		def add_page(options={})
+			raise KindlerError.new('must provide title when add page') unless options[:title]
+			page = options.reject{|k,v| PAGE_ATTRIBUTES.include?(k)}
+			page[:wrap] ||= true
+			page[:section] ||= DEFAULT_SECTION
+			page[:count] = pages.count + 1
+			page[:file_name] = "#{page[:count].to_s.rjust(3,'0')}.html"
+			pages << page
+			debug pages
 		end
 
-		# generate books by given urls
-		def generate(title='')
+		def generate
 			make_generated_dirs
-			# generate
-			generate_html
-			localize_images
+			localize_images if @keep_image
 			generate_toc
 			generate_opf
 			generate_ncx
 			write_to_disk
 			kindlegen
-			# clear
 		end
 
 		# check mobi file is generated already
@@ -83,8 +79,8 @@ module Kindler
 						<ul>
 			CODE
 			files_count = 1
-			@doc_infos.each do |url,infos|
-				contents << "<li><a href='#{files_count.to_s.rjust(3,'0')}.html'>#{infos[:title]}</a></li>"
+			pages.each do |page|
+				contents << "<li><a href='#{files_count.to_s.rjust(3,'0')}.html'>#{page[:title]}</a></li>"
 				files_count += 1
 			end
 			# append footer
@@ -100,60 +96,124 @@ module Kindler
 				<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
 				<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="en-US">
 					<head>
-						<meta name="dtb:uid" content="#{@title}"/>
+						<meta name="dtb:uid" content="#{title}"/>
 						<meta name="dtb:depth" content="1"/>
 						<meta name="dtb:totalPageCount" content="0"/>
 						<meta name="dtb:maxPageNumber" content="0"/>
 					</head>
 					<docTitle>
-						<text>#{@title}</text>
+						<text>#{title}</text>
 					</docTitle>
 					<docAuthor>
-						<text>#{@author}</text>
+						<text>#{author}</text>
 					</docAuthor>
 					<navMap>
 			NCX
+			contents << (magzine? ? magzine_ncx : flat_ncx)
+			contents << "</navMap></ncx>"
+			@ncx = contents
+		end
+
+		def flat_ncx
+			contents = ''
 			files_count = 2
-			@doc_infos.each do |url,infos|
+			pages.each do |page|
 				nav_point = <<-NAV
 					<navPoint id="navpoint-#{files_count}" playOrder="#{files_count}">
-						<navLabel><text>#{infos[:title]}</text></navLabel>
+						<navLabel><text>#{page[:title]}</text></navLabel>
 						<content src="#{(files_count-1).to_s.rjust(3,'0')}.html"/>
 					</navPoint>
 				NAV
 				contents << nav_point
 				files_count += 1
 			end
-			contents << "</navMap></ncx>"
-			@ncx = contents
+			contents
+		end
+
+		def magzine_ncx
+			contents = ''
+			pages_by_section = {}
+			pages.each do |page|
+				pages_by_section[page[:title]] ||= []
+				pages_by_section[page[:title]] << page
+			end
+			contents << <<-MAG
+			<navPoint playOrder="0" class="periodical" id="periodical">
+				<navLabel>
+					<text>Table of Contents</text>
+				</navLabel>
+				<content src="contents.html"/>
+
+			MAG
+
+			play_order = 1
+			pages_by_section.each do |section,pages|
+				next if pages.count==0
+				# add section header
+				contents << <<-SECHEADER
+					<navPoint playOrder="#{play_order}" class="section" id="#{section}">
+								 <navLabel>
+									 <text>#{section}</text>
+								 </navLabel>
+								 <content src="#{pages.first[:file_name]}"/>
+				SECHEADER
+
+				play_order += 1
+				# add pages nav
+				pages.each do |page|
+					contents << <<-PAGE
+					 <navPoint playOrder="#{play_order}" class="article" id="item-#{page[:count].to_s.rjust(3,'0')}">
+						 <navLabel>
+							 <text>#{page[:title]}</text>
+						 </navLabel>
+						 <content src="#{page[:file_name]}"/>
+						 <mbp:meta name="description">#{page[:title]}</mbp:meta>
+						 <mbp:meta name="author">#{page[:author]}</mbp:meta>
+					 </navPoint>
+					PAGE
+					play_order += 1
+				end
+				# add section footer
+				contents << "</navPoint>"
+			end
+			contents << "</navPoint>"
+		end
+
+		def magzine_meta
+			<<-META
+    		<x-metadata>
+      		<output content-type="application/x-mobipocket-subscription-magazine" encoding="utf-8"/>
+    		</x-metadata>
+			META
+		end
+
+		def magzine?
+			@mobi_type == :magzine
 		end
 
 		# generate the opf, manifest of book,including all articles and images and css
 		def generate_opf
-			# mark mobi as magzine format
-			# <x-metadata>
-			#	 <output content-type="application/x-mobipocket-subscription-magazine" encoding="utf-8"/>
-			# </x-metadata>
 			contents = <<-HTML
 				<?xml version='1.0' encoding='utf-8'?>
-				<package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="#{@title}">
+				<package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="#{title}">
 					<metadata>
 						<dc-metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-							<dc:title>#{@title}</dc:title>
+							<dc:title>#{title}</dc:title>
 							<dc:language>en-gb</dc:language>
 							<meta content="cover-image" name="cover"/>
 							<dc:creator>Kindler- 29decibel</dc:creator>
 							<dc:publisher>Kindler- 29decibel</dc:publisher>
 							<dc:subject>News</dc:subject>
-							<dc:identifier id="#{@title}">#{@title}</dc:identifier>
+							<dc:identifier id="#{title}">#{title}</dc:identifier>
 							<dc:date>#{Time.now.to_date}/dc:date>
 							<dc:description>Kindler generated book</dc:description>
 						</dc-metadata>
+						#{magzine? ? magzine_meta : ''}
 					</metadata>
 					<manifest>
 			HTML
 			files_count = 1
-			@doc_infos.each do |url,infos|
+			pages.each do |page|
 				doc_id = files_count.to_s.rjust(3,'0')
 				contents << "<item href='#{doc_id}.html' media-type='application/xhtml+xml' id='#{doc_id}'/>"
 				files_count += 1
@@ -164,7 +224,7 @@ module Kindler
 			contents << "<spine toc='nav-contents'>"
 			contents << "<itemref idref='contents'/>"
 			files_count = 1
-			@doc_infos.each do |url,infos|
+			pages.each do |page|
 				contents << "<itemref idref='#{files_count.to_s.rjust(3,'0')}'/>"
 				files_count += 1
 			end
@@ -172,27 +232,10 @@ module Kindler
 			@opf = contents
 		end
 
-		# generate every url to article in readable format
-		def generate_html
-			@doc_infos.each do |url,infos|
-				article = readable_article(url)
-				if article
-					begin
-						# puts article.images
-						infos[:content] = html_wrap(article.title,article.content)
-						infos[:title] = article.title
-					rescue Exception => e
-						debug "error when get contents from article, #{e}"
-					end
-				end
-			end
-			@doc_infos = @doc_infos.reject{|url,infos| infos[:content]==nil or infos[:title]==nil }
-		end
-
 		def localize_images
 			images_count = 1
-			@doc_infos.each do |url,infos|
-				article = Nokogiri::HTML(infos[:content])
+			pages.each do |page|
+				article = Nokogiri::HTML(page[:content])
 				article.css('img').each do |img|
 					begin
 						image_remote_address = img.attr('src')
@@ -209,9 +252,9 @@ module Kindler
 						debug 'Image saved'
 						# replace local url address
 						img.attributes['src'].value = "#{images_count}#{File.extname(image_remote_address)}"
-						infos[:content] = article.inner_html
+						page[:content] = article.inner_html
 						# add to manifest
-						@images << "#{images_count}#{File.extname(image_remote_address)}"
+						local_images << "#{images_count}#{File.extname(image_remote_address)}"
 						images_count += 1 
 					rescue Exception => e
 						debug "got error when fetch and save image: #{e}"
@@ -236,22 +279,6 @@ module Kindler
 			result << '</body></html>'
 		end
 
-		# get readable document by url, using ruby-readability here
-		def readable_article(url)
-			debug "begin fetch url : #{url}"
-			begin
-				source = open(url).read
-			rescue Exception => e
-				debug "got some erros,#{e}"
-				return nil
-			end
-			if @keep_image
-				Readability::Document.new(source,:tags=>%w(div p img a),:attributes => %w[src href],:remove_empty_nodes => false)
-			else
-				Readability::Document.new(source)
-			end
-		end
-
 		# the dir path to generated files
 		def tmp_dir
 			File.join @output_dir,"#{TMP_DIR}_#{@title.gsub(' ','_')}"
@@ -266,22 +293,19 @@ module Kindler
 		def write_to_disk
 			File.open("#{tmp_dir}/nav-contents.ncx",'wb') { |f| f.write @ncx }
 			File.open(file_path('contents'),'wb') {|f| f.write @toc }
-			File.open("#{tmp_dir}/#{@title}.opf",'wb') {|f| f.write @opf}
+			File.open("#{tmp_dir}/#{title}.opf",'wb') {|f| f.write @opf}
 			# make html files
 			files_count = 1
-			@doc_infos.each do |url,infos|
+			pages.each do |page|
 				File.open(file_path(files_count.to_s.rjust(3,'0')),'wb') do |f|
-					f.write infos[:content]
+					content_to_write = page[:wrap] ? html_wrap(page[:title],page[:content]) : page[:content]
+					debug "here is the page #{page[:title]} need to write"
+					debug content_to_write
+					f.write content_to_write
 				end
 				files_count += 1
 			end
 
-		end
-
-		# exist to clear tmp files such as ncx,opf or html other than mobi file
-		# keep them right now
-		def clear_tmp_dirs
-			
 		end
 
 		def debug(str)

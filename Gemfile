@@ -13,8 +13,7 @@ group :development, :test do
   end
 end
 
-gem "ruby-readability",:git=>'https://github.com/iterationlabs/ruby-readability.git', :require => 'readability'
-gem 'mini_magick'
+gem "nokogiri"
 
 # Specify your gem's dependencies in kindler.gemspec
 gemspec
