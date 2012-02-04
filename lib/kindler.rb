@@ -25,7 +25,7 @@ module Kindler
 			@keep_image = options[:keep_image] || true
 			@debug = options[:debug]
 			@title = options[:title] || ''
-			@author = options[:author] || ''
+			@author = options[:author] || 'unknown'
 			@mobi_type = options[:mobi_type] || :magzine
 			@pages = []
 			@local_images = []
@@ -39,6 +39,7 @@ module Kindler
 			page[:section] ||= DEFAULT_SECTION
 			page[:count] = pages.count + 1
 			page[:file_name] = "#{page[:count].to_s.rjust(3,'0')}.html"
+			page[:author] = 'unknown' if (page[:author]==nil or page[:author]=='')
 			pages << page
 			debug pages
 		end
@@ -205,7 +206,7 @@ module Kindler
 							<dc:publisher>Kindler- 29decibel</dc:publisher>
 							<dc:subject>News</dc:subject>
 							<dc:identifier id="#{title}">#{title}</dc:identifier>
-							<dc:date>#{Time.now.to_date}/dc:date>
+							<dc:date>#{Time.now.to_date}</dc:date>
 							<dc:description>Kindler generated book</dc:description>
 						</dc-metadata>
 						#{magzine? ? magzine_meta : ''}
