@@ -60,15 +60,15 @@ module Kindler
 
 		def sectionize_pages
 			@pages_by_section = {}
-			page_count = 1
 			pages.each do |page|
-				page[:count] = page_count
-				page[:file_name] = "#{page[:count].to_s.rjust(3,'0')}.html"
-				page_count += 1
 				@pages_by_section[page[:section]] ||= []
 				@pages_by_section[page[:section]] << page
 			end
 			pages = @pages_by_section.values.flatten
+			pages.each_with_index do |page,index|
+				page[:count] = index + 1
+				page[:file_name] = "#{page[:count].to_s.rjust(3,'0')}.html"
+			end
 		end
 
 		# check mobi file is generated already
