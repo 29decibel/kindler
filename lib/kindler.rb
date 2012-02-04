@@ -47,11 +47,28 @@ module Kindler
 		def generate
 			make_generated_dirs
 			localize_images if @keep_image
+			# reorder count index
+			if magzine?
+				sectionize_pages
+			end
 			generate_toc
 			generate_opf
 			generate_ncx
 			write_to_disk
 			kindlegen
+		end
+
+		def sectionize_pages
+			@pages_by_section = {}
+			page_count = 1
+			pages.each do |page|
+				page[:count] = page_count
+				page[:file_name] = "#{page[:count].to_s.rjust(3,'0')}.html"
+				page_count += 1
+				@pages_by_section[page[:section]] ||= []
+				@pages_by_section[page[:section]] << page
+			end
+			pages = @pages_by_section.values.flatten
 		end
 
 		# check mobi file is generated already
@@ -133,11 +150,7 @@ module Kindler
 
 		def magzine_ncx
 			contents = ''
-			pages_by_section = {}
-			pages.each do |page|
-				pages_by_section[page[:section]] ||= []
-				pages_by_section[page[:section]] << page
-			end
+
 			contents << <<-MAG
 			<navPoint playOrder="0" class="periodical" id="periodical">
 				<navLabel>
@@ -148,7 +161,7 @@ module Kindler
 			MAG
 
 			play_order = 1
-			pages_by_section.each do |section,pages|
+			@pages_by_section.each do |section,pages|
 				next if pages.count==0
 				# add section header
 				contents << <<-SECHEADER
@@ -266,7 +279,7 @@ module Kindler
 
 		# html file path
 		def file_path(file_name)
-			"#{tmp_dir}/#{file_name}.html"
+			"#{tmp_dir}/#{file_name}"
 		end
 
 		# wrap readable contents with in html format
@@ -293,12 +306,12 @@ module Kindler
 
 		def write_to_disk
 			File.open("#{tmp_dir}/nav-contents.ncx",'wb') { |f| f.write @ncx }
-			File.open(file_path('contents'),'wb') {|f| f.write @toc }
+			File.open(file_path('contents.html'),'wb') {|f| f.write @toc }
 			File.open("#{tmp_dir}/#{title}.opf",'wb') {|f| f.write @opf}
 			# make html files
 			files_count = 1
 			pages.each do |page|
-				File.open(file_path(files_count.to_s.rjust(3,'0')),'wb') do |f|
+				File.open(file_path(page[:file_name]),'wb') do |f|
 					content_to_write = page[:wrap] ? html_wrap(page[:title],page[:content]) : page[:content]
 					debug "here is the page #{page[:title]} need to write"
 					debug content_to_write
