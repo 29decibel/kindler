@@ -177,9 +177,13 @@ module Kindler
 			@doc_infos.each do |url,infos|
 				article = readable_article(url)
 				if article
-					# puts article.images
-					infos[:content] = html_wrap(article.title,article.content)
-					infos[:title] = article.title
+					begin
+						# puts article.images
+						infos[:content] = html_wrap(article.title,article.content)
+						infos[:title] = article.title
+					rescue Exception => e
+						debug "error when get contents from article, #{e}"
+					end
 				end
 			end
 			@doc_infos = @doc_infos.reject{|url,infos| infos[:content]==nil or infos[:title]==nil }
