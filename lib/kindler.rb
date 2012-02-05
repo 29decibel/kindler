@@ -10,7 +10,7 @@ require_relative "kindler/version"
 module Kindler
 	class Book
 		class KindlerError < StandardError;end
-		attr_accessor :title,:author,:pages,:local_images,:mobi_type
+		attr_accessor :title,:author,:pages,:pages_by_section,:local_images,:mobi_type
 		TMP_DIR = 'kindler_generated_mobi'
 		DEFAULT_SECTION = "All Pages"
 		PAGE_ATTRIBUTES = %w(wrap title author content section)
@@ -30,6 +30,7 @@ module Kindler
 			@mobi_type = options[:mobi_type] || :magzine
 			@pages = []
 			@local_images = []
+			@pages_by_section = {}
 			raise KindlerError.new("must provide the book title ") unless title
 		end
 
@@ -63,13 +64,12 @@ module Kindler
 		end
 
 		def sectionize_pages
-			@pages_by_section = {}
-			pages.each do |page|
-				@pages_by_section[page[:section]] ||= []
-				@pages_by_section[page[:section]] << page
+			self.pages.each do |page|
+				pages_by_section[page[:section]] ||= []
+				pages_by_section[page[:section]] << page
 			end
-			pages = @pages_by_section.values.flatten
-			pages.each_with_index do |page,index|
+			self.pages = pages_by_section.values.flatten
+			self.pages.each_with_index do |page,index|
 				page[:count] = index + 1
 				page[:file_name] = "#{page[:count].to_s.rjust(3,'0')}.html"
 			end
@@ -88,6 +88,7 @@ module Kindler
 			system("kindlegen #{tmp_dir}/#{@title}.opf ")
 		end
 
+		# generate contents.html
 		def generate_toc
 			contents = <<-CODE
 				<html>
