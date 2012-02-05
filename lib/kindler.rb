@@ -2,6 +2,7 @@
 require 'rubygems'
 require "open-uri"
 require "nokogiri"
+require "cgi"
 # require 'mini_magick'
 require_relative 'kindler/railtie' if defined?(Rails)
 require_relative "kindler/version"
@@ -40,6 +41,9 @@ module Kindler
 			page[:count] = pages.count + 1
 			page[:file_name] = "#{page[:count].to_s.rjust(3,'0')}.html"
 			page[:author] = 'unknown' if (page[:author]==nil or page[:author]=='')
+			# escape special chars
+			page[:title] = CGI::escapeHTML(page[:title])
+			page[:author] = CGI::escapeHTML(page[:author])
 			pages << page
 			debug pages
 		end
