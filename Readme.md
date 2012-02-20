@@ -1,3 +1,6 @@
+### Todo
+* support inner reference, inner link can take to that article
+
 ### Prerequisite
 #### 1.kindlegen execute file from amazon
 #### 2.that's all
