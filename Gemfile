@@ -1,7 +1,7 @@
 source 'http://rubygems.org'
 
 group :development, :test do
-	gem 'rspec'
+  gem 'rspec'
   # Testing infrastructure
   gem 'guard'
   gem 'guard-rspec'
