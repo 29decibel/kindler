@@ -5,9 +5,4 @@ Scenario: create simple mobi books
  When call generate of that book instance
  Then got a mobi book
 
-Scenario: add sections to mobi books
-  Given context
-  When event
-  Then outcome
-
  
