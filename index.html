@@ -1,0 +1,114 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Kindler by 29decibel</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Kindler</h1>
+<p>generate readable kindle mobi book very easily</p>
+        <p class="view"><a href="https://github.com/29decibel/kindler">View the Project on GitHub <small>29decibel/kindler</small></a></p>
+        <ul>
+          <li><a href="https://github.com/29decibel/kindler/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/29decibel/kindler/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/29decibel/kindler">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h2>Todo</h2>
+
+<ul>
+<li>support inner reference, inner link can take to that article</li>
+</ul><h2>Is this gem is what you want?</h2>
+
+<p>There is an alternative gem called <a href="https://github.com/danchoi/kindlerb">kindlerb</a> can generate mobi books, the gem is also used 
+for the website <a href="http://kindlefeeder.com/">KindleFeeder</a> which is build by <a href="http://danielchoi.com/software">Daniel Choi</a>.</p>
+
+<p>If you like to generate mobi book by some html files, you have to conform to the structure which author provide. But if you just 
+want to generate mobi book on the fly, then you should try this gem.</p>
+
+<p>BTW, we share the same internal way to generating mobi book by <a href="http://www.amazon.com/gp/feature.html?ie=UTF8&amp;docId=1000234621">KindleGen 2</a>.</p>
+
+<h2>Prerequisite</h2>
+
+<h3>1.kindlegen execute file from amazon</h3>
+
+<h3>2.that's all</h3>
+
+<h2>Installation</h2>
+
+<div class="highlight">
+<pre><span class="n">gem</span> <span class="s1">'kindler'</span>
+</pre>
+</div>
+
+
+<p>or</p>
+
+<div class="highlight">
+<pre><span class="n">gem</span> <span class="s1">'kindler'</span><span class="p">,</span><span class="ss">:git</span><span class="o">=&gt;</span><span class="s1">'git@github.com:29decibel/kindler.git'</span>
+</pre>
+</div>
+
+
+<h2>A kindle mobi book generator</h2>
+
+<p>which receive a couple of urls then output one mobi file</p>
+
+<h2>Usage</h2>
+
+<div class="highlight">
+<pre><span class="n">title</span> <span class="o">=</span> <span class="s1">'my_first_mobi_book'</span>
+<span class="n">book</span> <span class="o">=</span> <span class="no">Kindler</span><span class="o">::</span><span class="no">Book</span><span class="o">.</span><span class="n">new</span> <span class="ss">:title</span><span class="o">=&gt;</span><span class="n">title</span><span class="p">,</span><span class="ss">:author</span><span class="o">=&gt;</span><span class="s1">'mike'</span>
+<span class="c1"># add one article</span>
+<span class="n">book</span><span class="o">.</span><span class="n">add_article</span> <span class="p">{</span>
+  <span class="ss">:title</span>    <span class="o">=&gt;</span>  <span class="s1">'page1'</span><span class="p">,</span>
+  <span class="ss">:author</span>   <span class="o">=&gt;</span>  <span class="s1">'mike1'</span><span class="p">,</span>
+  <span class="ss">:content</span>  <span class="o">=&gt;</span>  <span class="s1">'this is the page 1'</span><span class="p">,</span>
+  <span class="ss">:section</span>  <span class="o">=&gt;</span>  <span class="s1">'love'</span> <span class="p">}</span>
+<span class="c1"># add another article</span>
+<span class="n">book</span><span class="o">.</span><span class="n">add_article</span> <span class="p">{</span>
+  <span class="ss">:title</span>    <span class="o">=&gt;</span>  <span class="s1">'page2'</span><span class="p">,</span>
+  <span class="ss">:author</span>   <span class="o">=&gt;</span>  <span class="s1">'mike1'</span><span class="p">,</span>
+  <span class="ss">:content</span>  <span class="o">=&gt;</span>  <span class="s1">'this is the page 2'</span><span class="p">,</span>
+  <span class="ss">:section</span>  <span class="o">=&gt;</span>  <span class="s1">'hate'</span> <span class="p">}</span>
+<span class="c1"># add an article contains image</span>
+<span class="n">book</span><span class="o">.</span><span class="n">add_article</span> <span class="p">{</span>
+  <span class="ss">:title</span>    <span class="o">=&gt;</span>  <span class="s1">'page_with_image'</span><span class="p">,</span>
+  <span class="ss">:author</span>   <span class="o">=&gt;</span>  <span class="s1">'mike1'</span><span class="p">,</span>
+  <span class="ss">:content</span>  <span class="o">=&gt;</span>  <span class="s1">'&lt;img src="<a href="http://media2.glamour-sales.com.cn/media/catalog/category/Stroili_banner_02.jpg&quot;&gt;&lt;/img&gt;this">http://media2.glamour-sales.com.cn/media/catalog/category/Stroili_banner_02.jpg"&gt;&lt;/img&gt;this</a> is the page 3'</span><span class="p">,</span>
+  <span class="ss">:section</span>  <span class="o">=&gt;</span>  <span class="s1">'hate'</span> <span class="p">}</span>
+<span class="c1"># you will get my_first_mobi_book.mobi file</span>
+<span class="n">book</span><span class="o">.</span><span class="n">generate</span> 
+
+<span class="c1">#or you can just generate simple mobi book</span>
+<span class="n">book</span><span class="o">.</span><span class="n">mobi_type</span> <span class="o">=</span> <span class="ss">:flat</span>
+<span class="n">book</span><span class="o">.</span><span class="n">generate</span>
+</pre>
+</div>
+
+
+<blockquote>
+<p>Keep Reading!</p>
+</blockquote>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/29decibel">29decibel</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+  </body>
+</html>
