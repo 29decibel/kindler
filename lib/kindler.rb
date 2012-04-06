@@ -15,7 +15,7 @@ module Kindler
 
     TMP_DIR = 'kindler_generated_mobi'
     DEFAULT_SECTION = "All Pages"
-    PAGE_ATTRIBUTES = %w(wrap title author content section)
+    PAGE_ATTRIBUTES = %w(wrap title author content section url)
 
     # availabel options
     # @param options [Hash]
@@ -265,15 +265,16 @@ module Kindler
           begin
             image_remote_address = img.attr('src')
             unless image_remote_address.start_with?('http')
-              image_remote_address = "http://#{URI(url).host}#{image_remote_address}"
+              image_remote_address = "http://#{URI(page[:url]).host}#{image_remote_address}"
             end
             image_local_address = File.join(tmp_dir,"#{images_count}#{File.extname(image_remote_address)}")
             # download images
             debug "begin fetch image #{image_remote_address}"
             debug "save to #{image_local_address}"
-            File.open(image_local_address,'wb') do |f|
-              f.write open(image_remote_address).read
-            end
+            `curl #{image_remote_address} > #{image_local_address}`
+            # File.open(image_local_address,'wb') do |f|
+            #   f.write open(image_remote_address).read
+            # end
             debug 'Image saved'
             # replace local url address
             img.attributes['src'].value = "#{images_count}#{File.extname(image_remote_address)}"

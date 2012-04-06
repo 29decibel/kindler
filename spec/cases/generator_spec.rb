@@ -102,4 +102,15 @@ describe "Mobi book file generator" do
     book.should be_generated
   end
 
+  it "can generate images with relative src" do
+    title = 'book_with_relative_image'
+    book = Kindler::Book.new :title=>title,:author=>'mike',:debug=>true
+    book.add_page :title=>'page1',:author=>'mike1',:content=>'this is the page 1',:wrap=>true
+    book.add_page :title=>'page2',:author=>'mike1',:content=>'this is the page 2',:wrap=>true
+    book.add_page :title=>'page3',:author=>'mike1',:url => 'http://media2.glamour-sales.com.cn/media/some_url',:content=>'<img src="/media/catalog/category/Stroili_banner_02.jpg"></img>this is the page 3',:wrap=>true
+    book.generate 
+    book.should be_generated
+    File.should be_exist("./#{DIR_PREFIX}#{title}/1.jpg")
+  end
+
 end
