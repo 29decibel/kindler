@@ -31,9 +31,24 @@ which receive a couple of urls then output one mobi file
 ```ruby
 title = 'my_first_mobi_book'
 book = Kindler::Book.new :title=>title,:author=>'mike'
-book.add_page :title=>'page1',:author=>'mike1',:content=>'this is the page 1',:wrap=>true,:section => 'love'
-book.add_page :title=>'page2',:author=>'mike1',:content=>'this is the page 2',:wrap=>true,:section => 'hate'
-book.add_page :title=>'page_with_image',:author=>'mike1',:content=>'<img src="http://media2.glamour-sales.com.cn/media/catalog/category/Stroili_banner_02.jpg"></img>this is the page 3',:wrap=>true,:section=>'hate'
+# add one article
+book.add_article {
+  :title    =>  'page1',
+  :author   =>  'mike1',
+  :content  =>  'this is the page 1',
+  :section  =>  'love' }
+# add another article
+book.add_article {
+  :title    =>  'page2',
+  :author   =>  'mike1',
+  :content  =>  'this is the page 2',
+  :section  =>  'hate' }
+# add an article contains image
+book.add_article {
+  :title    =>  'page_with_image',
+  :author   =>  'mike1',
+  :content  =>  '<img src="http://media2.glamour-sales.com.cn/media/catalog/category/Stroili_banner_02.jpg"></img>this is the page 3',
+  :section  =>  'hate' }
 # you will get my_first_mobi_book.mobi file
 book.generate 
 
@@ -41,7 +56,6 @@ book.generate
 book.mobi_type = :flat
 book.generate
 ```
-
-Hope you love it !
+> Keep Reading!
 
 

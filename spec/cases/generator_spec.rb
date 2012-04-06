@@ -93,4 +93,13 @@ describe "Mobi book file generator" do
     book.should be_generated
   end
 
+  it "can support add_article" do
+    title = 'first-book'
+    author = 'mike'
+    book = Kindler::Book.new :title=>title,:author=>author,:debug=>true
+    book.add_article :title=>'page1',:author=>'mike1',:content=>'this is the page 1',:wrap=>true
+    book.generate
+    book.should be_generated
+  end
+
 end

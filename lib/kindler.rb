@@ -10,7 +10,9 @@ require_relative "kindler/version"
 module Kindler
   class Book
     class KindlerError < StandardError;end
+
     attr_accessor :title,:author,:pages,:pages_by_section,:local_images,:mobi_type
+
     TMP_DIR = 'kindler_generated_mobi'
     DEFAULT_SECTION = "All Pages"
     PAGE_ATTRIBUTES = %w(wrap title author content section)
@@ -47,6 +49,10 @@ module Kindler
       page[:author] = CGI::escapeHTML(page[:author])
       pages << page
       debug pages
+    end
+
+    def add_article(options={})
+      add_page(options)
     end
 
     def generate
