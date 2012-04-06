@@ -76,8 +76,8 @@ module Kindler
     end
 
     # check mobi file is generated already
-    def mobi_generated?
-      File.exist? "#{tmp_dir}/#{@title}.mobi"
+    def generated?
+      File.exist? "#{tmp_dir}/#{valid_title}.mobi"
     end
 
     private
@@ -85,7 +85,7 @@ module Kindler
     # you can use "sudo brew install " to install it
     def kindlegen
       debug 'begin generate mobi'
-      system("kindlegen #{tmp_dir}/#{@title}.opf ")
+      system("kindlegen #{tmp_dir}/#{valid_title}.opf ")
     end
 
     # generate contents.html
@@ -300,7 +300,11 @@ module Kindler
 
     # the dir path to generated files
     def tmp_dir
-      File.join @output_dir,"#{TMP_DIR}_#{@title.gsub(' ','_')}"
+      File.join @output_dir,"#{TMP_DIR}_#{valid_title}"
+    end
+
+    def valid_title
+      @v_title ||= @title.gsub(' ','_')
     end
 
     # create dirs of generated files
@@ -312,7 +316,7 @@ module Kindler
     def write_to_disk
       File.open("#{tmp_dir}/nav-contents.ncx",'wb') { |f| f.write @ncx }
       File.open(file_path('contents.html'),'wb') {|f| f.write @toc }
-      File.open("#{tmp_dir}/#{title}.opf",'wb') {|f| f.write @opf}
+      File.open("#{tmp_dir}/#{valid_title}.opf",'wb') {|f| f.write @opf}
       # make html files
       files_count = 1
       pages.each do |page|

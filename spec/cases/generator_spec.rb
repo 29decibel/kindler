@@ -16,7 +16,7 @@ describe "Mobi book file generator" do
     author = 'mike'
     book = Kindler::Book.new :title=>title,:author=>author,:debug=>true
     book.generate
-    File.should be_exist("./#{DIR_PREFIX}#{title}")
+    book.should be_generated
   end
 
   it "should contains the contents.html and ncx file" do
@@ -37,6 +37,7 @@ describe "Mobi book file generator" do
     contents = File.open("./#{DIR_PREFIX}#{title}/contents.html").readlines
     contents.count.should > 0
     contents.select {|a| a.include?("001.html")}.count.should > 0
+    book.should be_generated
   end
 
   it "should not generate a mobi book" do
@@ -46,7 +47,7 @@ describe "Mobi book file generator" do
     book.add_page :title=>'page2',:author=>'mike1',:content=>'this is the page 2',:wrap=>true
     book.add_page :title=>'page3',:author=>'mike1',:content=>'this is the page 3',:wrap=>true
     book.generate 
-    File.should be_exist("./#{DIR_PREFIX}#{title}/#{title}.mobi")
+    book.should be_generated
   end
 
   it "should generate book contains images" do
@@ -56,6 +57,7 @@ describe "Mobi book file generator" do
     book.add_page :title=>'page2',:author=>'mike1',:content=>'this is the page 2',:wrap=>true
     book.add_page :title=>'page3',:author=>'mike1',:content=>'<img src="http://media2.glamour-sales.com.cn/media/catalog/category/Stroili_banner_02.jpg"></img>this is the page 3',:wrap=>true
     book.generate 
+    book.should be_generated
     File.should be_exist("./#{DIR_PREFIX}#{title}/1.jpg")
   end
 
@@ -78,7 +80,17 @@ describe "Mobi book file generator" do
     book.add_page :title=>'hate page1',:author=>'mike1',:content=>'this is the hate page1',:section => 'hate'
     book.add_page :title=>'love page3',:author=>'mike1',:content=>'this is the love page3',:section => 'love'
     book.generate 
+    book.should be_generated
     book.pages_by_section.count.should == 2
+  end
+
+  it "should generate books given title contains space" do
+    title = 'title with space'
+    book = Kindler::Book.new :title=>title,:author=>'mike',:debug=>true
+    book.add_page :title=>'page1',:author=>'mike1',:content=>'this is the page 1',:wrap=>true
+    book.add_page :title=>'page2',:author=>'mike1',:content=>'this is the page 2',:wrap=>true
+    book.generate 
+    book.should be_generated
   end
 
 end
