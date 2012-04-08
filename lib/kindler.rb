@@ -13,7 +13,7 @@ module Kindler
 
     attr_accessor :title,:author,:pages,:pages_by_section,:local_images,:mobi_type
 
-    TMP_DIR = 'kindler_generated_mobi'
+    TMP_DIR_PREFIX = '__km_'
     DEFAULT_SECTION = "All Pages"
     PAGE_ATTRIBUTES = %w(wrap title author content section url)
 
@@ -24,7 +24,7 @@ module Kindler
     # @option debug [Boolean] whether puts debug infos
     # @option keep_image [Boolean] whether keep images, default to true
     def initialize(options={})
-      @output_dir = options[:output_dir] || './'
+      @output_dir = options[:output_dir] || ''
       @keep_image = options[:keep_image] || true
       @debug = options[:debug]
       @title = options[:title] || ''
@@ -83,7 +83,11 @@ module Kindler
 
     # check mobi file is generated already
     def generated?
-      File.exist? "#{tmp_dir}/#{valid_title}.mobi"
+      File.exist? book_path
+    end
+
+    def book_path
+      "#{tmp_dir}/#{valid_title}.mobi"
     end
 
     private
@@ -307,7 +311,7 @@ module Kindler
 
     # the dir path to generated files
     def tmp_dir
-      File.join @output_dir,"#{TMP_DIR}_#{valid_title}"
+      File.expand_path (@output_dir == '' ? "#{TMP_DIR_PREFIX}#{valid_title}" : @output_dir)
     end
 
     def valid_title
