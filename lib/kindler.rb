@@ -261,30 +261,51 @@ module Kindler
       @opf = contents
     end
 
+    def get_image_extname(image_data,url)
+      ext = File.extname('url')
+      if ext == ''
+        ext = case image_data.content_type
+        when /jpeg/i
+          '.jpg'
+        when /png/i
+          '.png'
+        when /gif/i
+          '.gif'
+        else
+          '.jpg'
+        end
+      end
+      ext
+    end
+
     def localize_images
       images_count = 1
       pages.each do |page|
         article = Nokogiri::HTML(page[:content])
         article.css('img').each do |img|
           begin
+            # get remote address
             image_remote_address = img.attr('src')
             unless image_remote_address.start_with?('http')
               image_remote_address = "http://#{URI(page[:url]).host}#{image_remote_address}"
             end
-            image_local_address = File.join(tmp_dir,"#{images_count}#{File.extname(image_remote_address)}")
+            # get local address
+            image_data = open(image_remote_address)
+            image_extname = get_image_extname(image_data,image_remote_address)
+            image_local_address = File.join(tmp_dir,"#{images_count}#{image_extname}")
             # download images
             debug "begin fetch image #{image_remote_address}"
             debug "save to #{image_local_address}"
-            `curl #{image_remote_address} > #{image_local_address}`
-            # File.open(image_local_address,'wb') do |f|
-            #   f.write open(image_remote_address).read
-            # end
+            #`curl #{image_remote_address} > #{image_local_address}`
+            File.open(image_local_address,'wb') do |f|
+              f.write image_data.read
+            end
             debug 'Image saved'
             # replace local url address
-            img.attributes['src'].value = "#{images_count}#{File.extname(image_remote_address)}"
+            img.attributes['src'].value = "#{image_local_address}"
             page[:content] = article.inner_html
             # add to manifest
-            local_images << "#{images_count}#{File.extname(image_remote_address)}"
+            local_images << "#{image_local_address}"
             images_count += 1 
           rescue Exception => e
             debug "got error when fetch and save image: #{e}"

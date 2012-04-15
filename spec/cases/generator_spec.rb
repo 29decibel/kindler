@@ -3,7 +3,7 @@ describe "Mobi book file generator" do
 
   after :all do
     puts '==== clear tmp files ==='
-    `rm -rf ./__*`
+    #`rm -rf ./__*`
   end
 
   it "should have the title,author property" do
@@ -58,7 +58,7 @@ describe "Mobi book file generator" do
     book = Kindler::Book.new :title=>title,:author=>'mike',:debug=>true
     book.add_page :title=>'page1',:author=>'mike1',:content=>'this is the page 1',:wrap=>true
     book.add_page :title=>'page2',:author=>'mike1',:content=>'this is the page 2',:wrap=>true
-    book.add_page :title=>'page3',:author=>'mike1',:content=>'<img src="http://media2.glamour-sales.com.cn/media/catalog/category/Stroili_banner_02.jpg"></img>this is the page 3',:wrap=>true
+    book.add_page :title=>'page3',:author=>'mike1',:content=>'<img src="http://media2.glamour-sales.com.cn/media/catalog/category/Stroili_banner_02.jpg"/>this is the page 3',:wrap=>true
     book.generate 
     book.should be_generated
     File.should be_exist("./#{Kindler::Book::TMP_DIR_PREFIX}#{title}/1.jpg")
@@ -110,7 +110,7 @@ describe "Mobi book file generator" do
     book = Kindler::Book.new :title=>title,:author=>'mike',:debug=>true
     book.add_page :title=>'page1',:author=>'mike1',:content=>'this is the page 1',:wrap=>true
     book.add_page :title=>'page2',:author=>'mike1',:content=>'this is the page 2',:wrap=>true
-    book.add_page :title=>'page3',:author=>'mike1',:url => 'http://media2.glamour-sales.com.cn/media/some_url',:content=>'<img src="/media/catalog/category/Stroili_banner_02.jpg"></img>this is the page 3',:wrap=>true
+    book.add_page :title=>'page3',:author=>'mike1',:url => 'http://media2.glamour-sales.com.cn/media/some_url',:content=>'<img src="/media/catalog/category/Stroili_banner_02.jpg"/>this is the page 3',:wrap=>true
     book.generate 
     book.should be_generated
     File.should be_exist("./#{Kindler::Book::TMP_DIR_PREFIX}#{title}/1.jpg")
@@ -136,6 +136,17 @@ describe "Mobi book file generator" do
     book.generate 
     book.should be_generated
     File.should be_exist(File.expand_path(custom_dir))
+  end
+
+  it "should get correct image type when no extname found" do
+    title = "no_extname_found_book"
+    book = Kindler::Book.new :title=>title,:author=>'mike',:debug=>true
+    image_url = "https://lh3.googleusercontent.com/Lpu3TQdWzvnJKkx4U4uyjJzQxvXSFTbwbb_Ni3XJp8stydrlKpI_VHbY2rAcphMMcrkq-wev2zKkSpbGSQr_T5BfrRuHYqlLQ-NTPmPk--mS2PYu_Rk"
+    book.add_page :title=>'page1',:author=>'mike1',:content=>'this is the page 1',:wrap=>true
+    book.add_page :title=>'page2',:author=>'mike1',:content=>'this is the page 2',:wrap=>true
+    book.add_page :title=>'page3',:author=>'mike1',:content=>"<img src='#{image_url}'/>this is the page 3",:wrap=>true
+    book.generate 
+    book.should be_generated
   end
 
 end
