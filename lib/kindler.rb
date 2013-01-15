@@ -96,7 +96,7 @@ module Kindler
     # you can use "sudo brew install " to install it
     def kindlegen
       debug 'begin generate mobi'
-      system("kindlegen #{tmp_dir}/#{valid_title}.opf ")
+      system("kindleGen #{tmp_dir}/#{valid_title}.opf ")
     end
 
     # generate contents.html
