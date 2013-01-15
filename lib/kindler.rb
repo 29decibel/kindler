@@ -33,6 +33,7 @@ module Kindler
       @pages = []
       @local_images = []
       @pages_by_section = {}
+      @style = options[:style] || ''
       raise KindlerError.new("must provide the book title ") unless title
     end
 
@@ -306,7 +307,7 @@ module Kindler
             page[:content] = article.inner_html
             # add to manifest
             local_images << "#{image_local_address}"
-            images_count += 1 
+            images_count += 1
           rescue Exception => e
             debug "got error when fetch and save image: #{e}"
           end
@@ -324,6 +325,7 @@ module Kindler
       result = ''
       result << '<html><head>'
       result << "<meta content='text/html; charset=utf-8' http-equiv='Content-Type'/>"
+      result << "<style type=\"text/css\">#{@style}</style>"
       result << '</head><body>'
       result << "<h3>#{title}</h3>"
       result << content
