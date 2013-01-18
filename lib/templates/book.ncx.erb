@@ -14,5 +14,41 @@
     <text><%= author %></text>
   </docAuthor>
   <navMap>
+    <% if magzine? %>
+      <navPoint playOrder="0" class="periodical" id="periodical">
+        <navLabel>
+          <text>Table of Contents</text>
+        </navLabel>
+        <content src="contents.html"/>
+
+        <% @pages_by_section.each do |section,pages| %>
+          <% next if pages.count==0 %>
+          <navPoint playOrder="<%= play_order %>" class="section" id="<%= section %>">
+            <navLabel>
+              <text><%= section %></text>
+            </navLabel>
+            <content src="<%= pages.first[:file_name] %>"/>
+            <% play_order += 1%>
+            <% pages.each do |page| %>
+            <navPoint playOrder="<%= play_order %>" class="article" id="item-<%= page[:count].to_s.rjust(3,'0') %>">
+              <navLabel>
+                <text><%= page[:title] %></text>
+              </navLabel>
+              <content src="<%= page[:file_name] %>"/>
+              <mbp:meta name="description"><%= page[:title] %></mbp:meta>
+              <mbp:meta name="author"><%= page[:author] %></mbp:meta>
+            </navPoint>
+            <% end %>
+          </navPoint>
+        <% end %>
+      </navPoint>
+    <% else %>
+      <% pages.each_with_index do |page,index| %>
+        <navPoint id="navpoint-<%= index +2 %>" playOrder="<%= index +2 %>">
+          <navLabel><text><%= page[:title] %></text></navLabel>
+          <content src="<%= (index+1).to_s.rjust(3,'0') %>.html"/>
+        </navPoint>
+      <% end %>
+    <% end %>
   </navMap>
 </ncx>
