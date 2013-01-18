@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="#{title}">
+  <metadata>
+    <dc-metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+      <dc:title><%= title %></dc:title>
+      <dc:language>en-gb</dc:language>
+      <meta content="cover-image" name="cover"/>
+      <dc:creator><%= meta_info[:creator]%></dc:creator>
+      <dc:publisher><%= meta_info[:publisher]%></dc:publisher>
+      <dc:subject><%= meta_info[:subject]%></dc:subject>
+      <dc:identifier id="<%= title %>"><%= title %></dc:identifier>
+      <dc:date><%= Time.now.to_date %></dc:date>
+      <dc:description><%= meta_info[:description] %></dc:description>
+    </dc-metadata>
+    <% if magzine? %>
+      <x-metadata>
+        <output content-type="application/x-mobipocket-subscription-magazine" encoding="utf-8"/>
+      </x-metadata>
+    <% end %>
+  </metadata>
+  <manifest>
+    <% pages.each_with_index do |page,index|%>
+      <item href='<%= (index+1).to_s.rjust(3,'0') %>.html' media-type='application/xhtml+xml' id='<%= (index+1).to_s.rjust(3,'0') %>'/>
+    <% end %>
+    <item href='contents.html' media-type='application/xhtml+xml' id='contents'/>
+    <item href='nav-contents.ncx' media-type='application/x-dtbncx+xml' id='nav-contents'/>
+  </manifest>
+  <spine toc='nav-contents'>
+    <itemref idref='contents'/>
+    <% pages.each_with_index do |page,index| %>
+      <itemref idref='<%= (index+1).to_s.rjust(3,'0') %>'/>
+    <% end %>
+  </spine>
+  <guide>
+    <reference href='contents.html' type='toc' title='Table of Contents'/>
+  </guide>
+</package>

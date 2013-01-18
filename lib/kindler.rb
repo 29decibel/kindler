@@ -3,6 +3,7 @@ require 'rubygems'
 require "open-uri"
 require "nokogiri"
 require "cgi"
+require "erb"
 # require 'mini_magick'
 require_relative 'kindler/railtie' if defined?(Rails)
 require_relative "kindler/version"
@@ -11,7 +12,7 @@ module Kindler
   class Book
     class KindlerError < StandardError;end
 
-    attr_accessor :title,:author,:pages,:pages_by_section,:local_images,:mobi_type
+    attr_accessor :title,:author,:pages,:pages_by_section,:local_images,:mobi_type,:style
 
     TMP_DIR_PREFIX = '__km_'
     DEFAULT_SECTION = "All Pages"
@@ -101,120 +102,15 @@ module Kindler
 
     # generate contents.html
     def generate_toc
-      contents = <<-CODE
-        <html>
-          <head>
-            <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
-            <title>Table of Contents</title>
-          </head>
-          <body>
-            <h1>Contents</h1>
-            <h4>Main section</h4>
-            <ul>
-      CODE
-      files_count = 1
-      pages.each do |page|
-        contents << "<li><a href='#{files_count.to_s.rjust(3,'0')}.html'>#{page[:title]}</a></li>"
-        files_count += 1
-      end
-      # append footer
-      contents << "</ul></body></html>"
-
-      @toc = contents
+      template = ERB.new(open(File.join(File.dirname(__FILE__),"templates/book.toc.erb")).read)
+      @toc = template.result(binding)
     end
 
     # generate ncx , which is navigation
     def generate_ncx
-      contents = <<-NCX
-        <?xml version="1.0" encoding="UTF-8"?>
-        <!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
-        <ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="en-US">
-          <head>
-            <meta name="dtb:uid" content="#{title}"/>
-            <meta name="dtb:depth" content="1"/>
-            <meta name="dtb:totalPageCount" content="0"/>
-            <meta name="dtb:maxPageNumber" content="0"/>
-          </head>
-          <docTitle>
-            <text>#{title}</text>
-          </docTitle>
-          <docAuthor>
-            <text>#{author}</text>
-          </docAuthor>
-          <navMap>
-      NCX
-      contents << (magzine? ? magzine_ncx : flat_ncx)
-      contents << "</navMap></ncx>"
-      @ncx = contents
-    end
-
-    def flat_ncx
-      contents = ''
-      files_count = 2
-      pages.each do |page|
-        nav_point = <<-NAV
-          <navPoint id="navpoint-#{files_count}" playOrder="#{files_count}">
-            <navLabel><text>#{page[:title]}</text></navLabel>
-            <content src="#{(files_count-1).to_s.rjust(3,'0')}.html"/>
-          </navPoint>
-        NAV
-        contents << nav_point
-        files_count += 1
-      end
-      contents
-    end
-
-    def magzine_ncx
-      contents = ''
-
-      contents << <<-MAG
-      <navPoint playOrder="0" class="periodical" id="periodical">
-        <navLabel>
-          <text>Table of Contents</text>
-        </navLabel>
-        <content src="contents.html"/>
-
-      MAG
-
       play_order = 1
-      @pages_by_section.each do |section,pages|
-        next if pages.count==0
-        # add section header
-        contents << <<-SECHEADER
-          <navPoint playOrder="#{play_order}" class="section" id="#{section}">
-                 <navLabel>
-                   <text>#{section}</text>
-                 </navLabel>
-                 <content src="#{pages.first[:file_name]}"/>
-        SECHEADER
-
-        play_order += 1
-        # add pages nav
-        pages.each do |page|
-          contents << <<-PAGE
-           <navPoint playOrder="#{play_order}" class="article" id="item-#{page[:count].to_s.rjust(3,'0')}">
-             <navLabel>
-               <text>#{page[:title]}</text>
-             </navLabel>
-             <content src="#{page[:file_name]}"/>
-             <mbp:meta name="description">#{page[:title]}</mbp:meta>
-             <mbp:meta name="author">#{page[:author]}</mbp:meta>
-           </navPoint>
-          PAGE
-          play_order += 1
-        end
-        # add section footer
-        contents << "</navPoint>"
-      end
-      contents << "</navPoint>"
-    end
-
-    def magzine_meta
-      <<-META
-        <x-metadata>
-          <output content-type="application/x-mobipocket-subscription-magazine" encoding="utf-8"/>
-        </x-metadata>
-      META
+      template = ERB.new(open(File.join(File.dirname(__FILE__),"templates/book.ncx.erb")).read)
+      @ncx = template.result(binding)
     end
 
     def magzine?
@@ -223,43 +119,12 @@ module Kindler
 
     # generate the opf, manifest of book,including all articles and images and css
     def generate_opf
-      contents = <<-HTML
-        <?xml version='1.0' encoding='utf-8'?>
-        <package xmlns="http://www.idpf.org/2007/opf" version="2.0" unique-identifier="#{title}">
-          <metadata>
-            <dc-metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-              <dc:title>#{title}</dc:title>
-              <dc:language>en-gb</dc:language>
-              <meta content="cover-image" name="cover"/>
-              <dc:creator>Kindler- 29decibel</dc:creator>
-              <dc:publisher>Kindler- 29decibel</dc:publisher>
-              <dc:subject>News</dc:subject>
-              <dc:identifier id="#{title}">#{title}</dc:identifier>
-              <dc:date>#{Time.now.to_date}</dc:date>
-              <dc:description>Kindler generated book</dc:description>
-            </dc-metadata>
-            #{magzine? ? magzine_meta : ''}
-          </metadata>
-          <manifest>
-      HTML
-      files_count = 1
-      pages.each do |page|
-        doc_id = files_count.to_s.rjust(3,'0')
-        contents << "<item href='#{doc_id}.html' media-type='application/xhtml+xml' id='#{doc_id}'/>"
-        files_count += 1
-      end
-      contents << "<item href='contents.html' media-type='application/xhtml+xml' id='contents'/>"
-      contents << "<item href='nav-contents.ncx' media-type='application/x-dtbncx+xml' id='nav-contents'/>"
-      contents << "</manifest>"
-      contents << "<spine toc='nav-contents'>"
-      contents << "<itemref idref='contents'/>"
-      files_count = 1
-      pages.each do |page|
-        contents << "<itemref idref='#{files_count.to_s.rjust(3,'0')}'/>"
-        files_count += 1
-      end
-      contents << "</spine><guide><reference href='contents.html' type='toc' title='Table of Contents'/></guide></package>"
-      @opf = contents
+      template = ERB.new(open(File.join(File.dirname(__FILE__),"templates/book.opf.erb")).read)
+      @opf = template.result(binding)
+    end
+
+    def meta_info
+      {}
     end
 
     def get_image_extname(image_data,url)
@@ -322,14 +187,8 @@ module Kindler
 
     # wrap readable contents with in html format
     def html_wrap(title,content)
-      result = ''
-      result << '<html><head>'
-      result << "<meta content='text/html; charset=utf-8' http-equiv='Content-Type'/>"
-      result << "<style type=\"text/css\">#{@style}</style>"
-      result << '</head><body>'
-      result << "<h3>#{title}</h3>"
-      result << content
-      result << '</body></html>'
+      template = ERB.new(open(File.join(File.dirname(__FILE__),"templates/page.html.erb")).read)
+      template.result(binding)
     end
 
     # the dir path to generated files

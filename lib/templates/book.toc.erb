@@ -7,8 +7,8 @@
     <h1>Contents</h1>
     <h4>Main section</h4>
     <ul>
-      <% pages.each_with_index do |page, index| %>
-        <li><a href='<%=(index+1).to_s.rjust(3,'0') %>.html'><%= page[:title] %></a></li>
+      <% pages.each_with_index do |page,index| %>
+      <li><a href='<%= (index+1).to_s.rjust(3,'0') %>.html'><%= page[:title] %></a></li>
       <% end %>
     </ul>
   </body>
