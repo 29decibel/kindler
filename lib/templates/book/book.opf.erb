@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package unique-identifier="uid">
+  <metadata>
+    <dc-metadata xmlns:dc="http://purl.org/metadata/dublin_core" xmlns:oebpackage="http://openebook.org/namespaces/oeb-package/1.0/">
+      <dc:Title>Title</dc:Title>
+      <dc:Language>en-us</dc:Language>
+      <dc:Identifier id="uid"></dc:Identifier>
+      <dc:Creator>Author's Name</dc:Creator>
+      <dc:Publisher>Publisher's Name</dc:Publisher>
+      <dc:Subject BASICCode="">Genre</dc:Subject>
+      <dc:Description>Longer description of the book.</dc:Description>
+      <dc:Date>DD/MM/YYYY</dc:Date>
+    </dc-metadata>
+    <x-metadata>
+      <output encoding="utf-8" content-type="text/x-oeb1-document"></output>
+      <SRP Currency="currency_name">Amount</SRP>
+      <Demo></Demo>
+    </x-metadata>
+    <meta name="cover" content="cover-image" />
+  </metadata>
+
+  <manifest>
+    <item id="css" href="default.css" media-type="text/css" />
+    <item id="cover-image" media-type="image/jpeg" href="cover.jpg" />
+    <item id="book" media-type="text/x-oeb1-document" href="book.html" />
+    <item id="toc" media-type="application/x-dtbncx+xml" href="toc.ncx" />
+  </manifest>
+
+  <spine toc="toc">
+    <itemref idref="book" />
+  </spine>
+
+  <tours></tours>
+
+  <guide>
+    <reference type="toc" title="Table of Contents" href="book.html#TOC" />
+    <reference type="start" title="Startup Page" href="book.html#start" />
+  </guide>
+
+</package>
