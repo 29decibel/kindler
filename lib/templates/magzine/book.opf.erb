@@ -5,12 +5,12 @@
       <dc:title><%= title %></dc:title>
       <dc:language>en-gb</dc:language>
       <meta content="cover-image" name="cover"/>
-      <dc:creator><%= meta_info[:creator]%></dc:creator>
-      <dc:publisher><%= meta_info[:publisher]%></dc:publisher>
-      <dc:subject><%= meta_info[:subject]%></dc:subject>
+      <dc:creator><%= author %></dc:creator>
+      <dc:publisher><%= author %></dc:publisher>
+      <dc:subject><%= title %></dc:subject>
       <dc:identifier id="<%= title %>"><%= title %></dc:identifier>
       <dc:date><%= Time.now.to_date %></dc:date>
-      <dc:description><%= meta_info[:description] %></dc:description>
+      <dc:description><%= title %></dc:description>
     </dc-metadata>
     <% if magzine? %>
       <x-metadata>
