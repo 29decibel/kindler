@@ -48,6 +48,7 @@ module Kindler
       page[:author] = 'unknown' if (page[:author]==nil or page[:author]=='')
       # escape special chars
       page[:title] = CGI::escapeHTML(page[:title])
+      page[:title] = title if(page[:title] == "")
       page[:author] = CGI::escapeHTML(page[:author])
       pages << page
       debug pages
