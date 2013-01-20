@@ -103,14 +103,14 @@ module Kindler
 
     # generate contents.html
     def generate_toc
-      template = ERB.new(open(File.join(File.dirname(__FILE__),"templates/magzine/book.toc.erb")).read)
+      template = ERB.new(open(File.join(File.dirname(__FILE__),"templates/book.toc.erb")).read)
       @toc = template.result(binding)
     end
 
     # generate ncx , which is navigation
     def generate_ncx
       play_order = 1
-      template = ERB.new(open(File.join(File.dirname(__FILE__),"templates/magzine/book.ncx.erb")).read)
+      template = ERB.new(open(File.join(File.dirname(__FILE__),"templates/book.ncx.erb")).read)
       @ncx = template.result(binding)
     end
 
@@ -120,7 +120,7 @@ module Kindler
 
     # generate the opf, manifest of book,including all articles and images and css
     def generate_opf
-      template = ERB.new(open(File.join(File.dirname(__FILE__),"templates/magzine/book.opf.erb")).read)
+      template = ERB.new(open(File.join(File.dirname(__FILE__),"templates/book.opf.erb")).read)
       @opf = template.result(binding)
     end
 
@@ -188,7 +188,7 @@ module Kindler
 
     # wrap readable contents with in html format
     def html_wrap(title,content)
-      template = ERB.new(open(File.join(File.dirname(__FILE__),"templates/magzine/page.html.erb")).read)
+      template = ERB.new(open(File.join(File.dirname(__FILE__),"templates/page.html.erb")).read)
       template.result(binding)
     end
 

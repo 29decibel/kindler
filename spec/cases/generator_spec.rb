@@ -49,7 +49,7 @@ describe "Mobi book file generator" do
     book.add_page :title=>'page1',:author=>'mike1',:content=>'this is the page 1',:wrap=>true
     book.add_page :title=>'page2',:author=>'mike1',:content=>'this is the page 2',:wrap=>true
     book.add_page :title=>'page3',:author=>'mike1',:content=>'this is the page 3',:wrap=>true
-    book.generate 
+    book.generate
     book.should be_generated
   end
 
@@ -59,7 +59,7 @@ describe "Mobi book file generator" do
     book.add_page :title=>'page1',:author=>'mike1',:content=>'this is the page 1',:wrap=>true
     book.add_page :title=>'page2',:author=>'mike1',:content=>'this is the page 2',:wrap=>true
     book.add_page :title=>'page3',:author=>'mike1',:content=>'<img src="http://media2.glamour-sales.com.cn/media/catalog/category/Stroili_banner_02.jpg"/>this is the page 3',:wrap=>true
-    book.generate 
+    book.generate
     book.should be_generated
     File.should be_exist("./#{Kindler::Book::TMP_DIR_PREFIX}#{title}/1.jpg")
   end
@@ -82,7 +82,7 @@ describe "Mobi book file generator" do
     book.add_page :title=>'love page2',:author=>'mike1',:content=>'this is the love page2',:section => 'love'
     book.add_page :title=>'hate page1',:author=>'mike1',:content=>'this is the hate page1',:section => 'hate'
     book.add_page :title=>'love page3',:author=>'mike1',:content=>'this is the love page3',:section => 'love'
-    book.generate 
+    book.generate
     book.should be_generated
     book.pages_by_section.count.should == 2
   end
@@ -92,7 +92,7 @@ describe "Mobi book file generator" do
     book = Kindler::Book.new :title=>title,:author=>'mike',:debug=>true
     book.add_page :title=>'page1',:author=>'mike1',:content=>'this is the page 1',:wrap=>true
     book.add_page :title=>'page2',:author=>'mike1',:content=>'this is the page 2',:wrap=>true
-    book.generate 
+    book.generate
     book.should be_generated
   end
 
@@ -111,7 +111,7 @@ describe "Mobi book file generator" do
     book.add_page :title=>'page1',:author=>'mike1',:content=>'this is the page 1',:wrap=>true
     book.add_page :title=>'page2',:author=>'mike1',:content=>'this is the page 2',:wrap=>true
     book.add_page :title=>'page3',:author=>'mike1',:url => 'http://media2.glamour-sales.com.cn/media/some_url',:content=>'<img src="/media/catalog/category/Stroili_banner_02.jpg"/>this is the page 3',:wrap=>true
-    book.generate 
+    book.generate
     book.should be_generated
     File.should be_exist("./#{Kindler::Book::TMP_DIR_PREFIX}#{title}/1.jpg")
   end
@@ -122,7 +122,7 @@ describe "Mobi book file generator" do
     book = Kindler::Book.new :title=>title,:author=>'mike',:debug=>true, :output_dir => custom_dir
     book.add_page :title=>'page1',:author=>'mike1',:content=>'this is the page 1',:wrap=>true
     book.add_page :title=>'page2',:author=>'mike1',:content=>'this is the page 2',:wrap=>true
-    book.generate 
+    book.generate
     book.should be_generated
     File.should be_exist(custom_dir)
   end
@@ -133,7 +133,7 @@ describe "Mobi book file generator" do
     book = Kindler::Book.new :title=>title,:author=>'mike',:debug=>true, :output_dir => custom_dir
     book.add_page :title=>'page1',:author=>'mike1',:content=>'this is the page 1',:wrap=>true
     book.add_page :title=>'page2',:author=>'mike1',:content=>'this is the page 2',:wrap=>true
-    book.generate 
+    book.generate
     book.should be_generated
     File.should be_exist(File.expand_path(custom_dir))
   end
@@ -145,8 +145,9 @@ describe "Mobi book file generator" do
     book.add_page :title=>'page1',:author=>'mike1',:content=>'this is the page 1',:wrap=>true
     book.add_page :title=>'page2',:author=>'mike1',:content=>'this is the page 2',:wrap=>true
     book.add_page :title=>'page3',:author=>'mike1',:content=>"<img src='#{image_url}'/>this is the page 3",:wrap=>true
-    book.generate 
+    book.generate
     book.should be_generated
   end
+
 
 end
