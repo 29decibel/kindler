@@ -87,14 +87,6 @@ describe "Mobi book file generator" do
     book.pages_by_section.count.should == 2
   end
 
-  it "should generate books given title contains space" do
-    title = 'title with space'
-    book = Kindler::Book.new :title=>title,:author=>'mike',:debug=>true
-    book.add_page :title=>'page1',:author=>'mike1',:content=>'this is the page 1',:wrap=>true
-    book.add_page :title=>'page2',:author=>'mike1',:content=>'this is the page 2',:wrap=>true
-    book.generate
-    book.should be_generated
-  end
 
   it "can support add_article" do
     title = 'first-book'

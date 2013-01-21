@@ -4,6 +4,7 @@ require "open-uri"
 require "nokogiri"
 require "cgi"
 require "erb"
+require "shellwords"
 # require 'mini_magick'
 require_relative 'kindler/railtie' if defined?(Rails)
 require_relative "kindler/version"
@@ -92,7 +93,7 @@ module Kindler
     end
 
     def book_path
-      "#{tmp_dir}/#{valid_title}.mobi"
+      "#{tmp_dir}/#{title}.mobi"
     end
 
     private
@@ -100,7 +101,8 @@ module Kindler
     # you can use "sudo brew install " to install it
     def kindlegen
       debug 'begin generate mobi'
-      system("kindleGen #{tmp_dir}/#{valid_title}.opf ")
+      cmd = "kindleGen #{Shellwords.escape(tmp_dir)}/#{Shellwords.escape(title)}.opf "
+      system(cmd)
     end
 
     # generate contents.html
@@ -196,11 +198,7 @@ module Kindler
 
     # the dir path to generated files
     def tmp_dir
-      File.expand_path (@output_dir == '' ? "#{TMP_DIR_PREFIX}#{valid_title}" : @output_dir)
-    end
-
-    def valid_title
-      @v_title ||= @title.gsub(' ','_')
+      File.expand_path (@output_dir == '' ? "#{TMP_DIR_PREFIX}#{title}" : @output_dir)
     end
 
     def prepare_conver_img
@@ -222,7 +220,7 @@ module Kindler
     def write_to_disk
       File.open("#{tmp_dir}/nav-contents.ncx",'wb') { |f| f.write @ncx }
       File.open(file_path('contents.html'),'wb') {|f| f.write @toc }
-      File.open("#{tmp_dir}/#{valid_title}.opf",'wb') {|f| f.write @opf}
+      File.open("#{tmp_dir}/#{title}.opf",'wb') {|f| f.write @opf}
       # make html files
       files_count = 1
       pages.each do |page|
