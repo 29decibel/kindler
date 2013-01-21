@@ -31,6 +31,7 @@ module Kindler
       @title = options[:title] || ''
       @author = options[:author] || 'unknown'
       @mobi_type = options[:mobi_type] || :magzine
+      @cover = options[:cover] || ""
       @pages = []
       @local_images = []
       @pages_by_section = {}
@@ -69,6 +70,7 @@ module Kindler
       generate_opf
       generate_ncx
       write_to_disk
+      prepare_conver_img
       kindlegen
     end
 
@@ -199,6 +201,16 @@ module Kindler
 
     def valid_title
       @v_title ||= @title.gsub(' ','_')
+    end
+
+    def prepare_conver_img
+      return unless @cover != ""
+      if @cover.start_with?("http")
+        # download conver to conver
+        # TODO find out a elegant way to do this
+      else
+        `cp #{@cover} #{tmp_dir}/` if File.exist?(@cover)
+      end
     end
 
     # create dirs of generated files
