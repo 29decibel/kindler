@@ -187,7 +187,7 @@ module Kindler
     end
 
     # wrap readable contents with in html format
-    def html_wrap(title,content)
+    def html_wrap(page)
       template = ERB.new(open(File.join(File.dirname(__FILE__),"templates/page.html.erb")).read)
       template.result(binding)
     end
@@ -215,7 +215,7 @@ module Kindler
       files_count = 1
       pages.each do |page|
         File.open(file_path(page[:file_name]),'wb') do |f|
-          content_to_write = page[:wrap] ? html_wrap(page[:title],page[:content]) : page[:content]
+          content_to_write = page[:wrap] ? html_wrap(page) : page[:content]
           debug "here is the page #{page[:title]} need to write"
           debug content_to_write
           f.write content_to_write

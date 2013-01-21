@@ -4,7 +4,10 @@
     <style type="text/css"><%= style %></style>
   </head>
   <body>
-    <h3><%= title %></h3>
-    <div><%= content %></div>
+    <h2>
+      <%= page[:title] %>
+      <em><%= page[:author] %></em>
+    </h2>
+    <div><%= page[:content] %></div>
   </body>
 </html>
