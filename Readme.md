@@ -1,6 +1,7 @@
 ## Todo
 * support inner reference, inner link can take to that article
 * refactor templates
+* fix image download
 
 ## Is this gem is what you want?
 There is a alternative gem called [kindlerb](https://github.com/danchoi/kindlerb) can generate mobi books, the gem is also used
