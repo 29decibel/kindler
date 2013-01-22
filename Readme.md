@@ -1,11 +1,12 @@
 ## Todo
 * support inner reference, inner link can take to that article
+* refactor templates
 
 ## Is this gem is what you want?
-There is a alternative gem called [kindlerb](https://github.com/danchoi/kindlerb) can generate mobi books, the gem is also used 
+There is a alternative gem called [kindlerb](https://github.com/danchoi/kindlerb) can generate mobi books, the gem is also used
 for the website [KindleFeeder](http://kindlefeeder.com/) which is build by [Daniel Choi](http://danielchoi.com/software).
 
-If you like to generate mobi book by some html files, you have to conform to the structure which author provide. But if you just 
+If you like to generate mobi book by some html files, you have to conform to the structure which author provide. But if you just
 want to generate mobi book in the fly, then you should try this gem.
 
 BTW, we share the same internal way to generating mobi book by [KindleGen 2](http://www.amazon.com/gp/feature.html?ie=UTF8&docId=1000234621).
@@ -50,7 +51,7 @@ book.add_article {
   :content  =>  '<img src="http://media2.glamour-sales.com.cn/media/catalog/category/Stroili_banner_02.jpg"></img>this is the page 3',
   :section  =>  'hate' }
 # you will get my_first_mobi_book.mobi file
-book.generate 
+book.generate
 
 #or you can just generate simple mobi book
 book.mobi_type = :flat
