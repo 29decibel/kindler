@@ -5,6 +5,7 @@ require "nokogiri"
 require "cgi"
 require "erb"
 require "shellwords"
+require "fileutils"
 # require 'mini_magick'
 require_relative 'kindler/railtie' if defined?(Rails)
 require_relative "kindler/version"
