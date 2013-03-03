@@ -34,6 +34,7 @@ module Kindler
       @author = options[:author] || 'unknown'
       @mobi_type = options[:mobi_type] || :magzine
       @cover = options[:cover] || ""
+      @silent = options[:silent]
       @pages = []
       @local_images = []
       @pages_by_section = {}
@@ -102,7 +103,7 @@ module Kindler
     # you can use "sudo brew install " to install it
     def kindlegen
       debug 'begin generate mobi'
-      cmd = "kindleGen #{Shellwords.escape(tmp_dir)}/#{Shellwords.escape(title)}.opf "
+      cmd = "kindleGen #{Shellwords.escape(tmp_dir)}/#{Shellwords.escape(title)}.opf #{@silent ? "> /dev/null" : ""}"
       system(cmd)
     end
 
