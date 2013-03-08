@@ -14,7 +14,7 @@ module Kindler
   class Book
     class KindlerError < StandardError;end
 
-    attr_accessor :title,:author,:pages,:pages_by_section,:local_images,:mobi_type,:style
+    attr_accessor :title,:author,:pages,:pages_by_section,:local_images,:mobi_type,:style,:cover_image
 
     TMP_DIR_PREFIX = '__km_'
     DEFAULT_SECTION = "All Pages"
@@ -65,6 +65,7 @@ module Kindler
     def generate
       make_generated_dirs
       localize_images if @keep_image
+      prepare_conver_img
       # reorder count index
       if magzine?
         sectionize_pages
@@ -73,7 +74,6 @@ module Kindler
       generate_opf
       generate_ncx
       write_to_disk
-      prepare_conver_img
       kindlegen
     end
 
@@ -204,13 +204,7 @@ module Kindler
     end
 
     def prepare_conver_img
-      return unless @cover != ""
-      if @cover.start_with?("http")
-        # download conver to conver
-        # TODO find out a elegant way to do this
-      else
-        `cp #{@cover} #{tmp_dir}/` if File.exist?(@cover)
-      end
+      @cover_image = File.basename(@local_images.first) rescue ''
     end
 
     # create dirs of generated files

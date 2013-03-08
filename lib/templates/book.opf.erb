@@ -22,6 +22,7 @@
     <% pages.each_with_index do |page,index|%>
       <item href='<%= (index+1).to_s.rjust(3,'0') %>.html' media-type='application/xhtml+xml' id='<%= (index+1).to_s.rjust(3,'0') %>'/>
     <% end %>
+    <item href="<%= cover_image %>" id="cover-image" media-type="image/jpeg" />
     <item href='contents.html' media-type='application/xhtml+xml' id='contents'/>
     <item href='nav-contents.ncx' media-type='application/x-dtbncx+xml' id='nav-contents'/>
   </manifest>
