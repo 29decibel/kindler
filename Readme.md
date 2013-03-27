@@ -14,7 +14,8 @@ BTW, we share the same internal way to generating mobi book by [KindleGen 2](htt
 
 ## Prerequisite
 ### 1.kindlegen execute file from amazon
-### 2.that's all
+### 2.imagemagick exist
+### 3.that's all
 
 ## Installation
 ```ruby

@@ -203,8 +203,15 @@ module Kindler
       File.expand_path (@output_dir == '' ? "#{TMP_DIR_PREFIX}#{title}" : @output_dir)
     end
 
+    # 1. using imagemagick to crop a image to 600*800
+    # 2. set the image url to something
     def prepare_conver_img
-      @cover_image = File.basename(@local_images.first) rescue ''
+      if @local_images.length > 0
+        image_file = @local_images.first
+        @cover_image = "#{File.dirname(image_file)}/cover-image.gif"
+        cmd = "convert #{image_file} -compose over -background white -flatten -resize '300x200>' -alpha off #{@cover_image}"
+        `#{cmd}` rescue ''
+      end
     end
 
     # create dirs of generated files
