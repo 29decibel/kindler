@@ -209,7 +209,7 @@ module Kindler
       if @local_images.length > 0
         image_file = @local_images.first
         @cover_image = "#{File.dirname(image_file)}/cover-image.gif"
-        cmd = "convert #{image_file} -compose over -background white -flatten -resize '300x200>' -alpha off #{@cover_image}"
+        cmd = "convert #{Shellwords.escape(image_file)} -compose over -background white -flatten -resize '300x200>' -alpha off #{Shellwords.escape(@cover_image)}"
         `#{cmd}` rescue ''
       end
     end
