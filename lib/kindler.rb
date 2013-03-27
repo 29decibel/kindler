@@ -160,7 +160,7 @@ module Kindler
             # get remote address
             image_remote_address = img.attr('src')
             unless image_remote_address.start_with?('http')
-              image_remote_address = "http://#{URI(page[:url]).host}#{image_remote_address}"
+              image_remote_address = URI.join(page[:url], image_remote_address).to_s
             end
             # get local address
             image_data = open(image_remote_address)
