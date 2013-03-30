@@ -77,7 +77,7 @@ describe "Mobi book file generator" do
 
   it "should have two sections" do
     title = 'test_contents'
-    book = Kindler::Book.new :title=>title,:author=>'mike',:debug=>true
+    book = Kindler::Book.new :title=>title,:author=>'mike',:debug=>true, :mobi_type => :magzine
     book.add_page :title=>'love page1',:author=>'mike1',:content=>'this is the love page1',:section => 'love'
     book.add_page :title=>'love page2',:author=>'mike1',:content=>'this is the love page2',:section => 'love'
     book.add_page :title=>'hate page1',:author=>'mike1',:content=>'this is the hate page1',:section => 'hate'

@@ -32,7 +32,7 @@ module Kindler
       @debug = options[:debug]
       @title = options[:title] || ''
       @author = options[:author] || 'unknown'
-      @mobi_type = options[:mobi_type] || :magzine
+      @mobi_type = options[:mobi_type] || :simple
       @cover = options[:cover] || ""
       @silent = options[:silent]
       @pages = []
@@ -208,8 +208,8 @@ module Kindler
     def prepare_conver_img
       if @local_images.length > 0
         image_file = @local_images.first
-        @cover_image = "#{File.dirname(image_file)}/cover-image.gif"
-        cmd = "convert #{Shellwords.escape(image_file)} -compose over -background white -flatten -resize '300x200>' -alpha off #{Shellwords.escape(@cover_image)}"
+        @cover_image = "#{File.dirname(image_file)}/cover-image.jpg"
+        cmd = "convert #{Shellwords.escape(image_file)} -compose over -background white -flatten -resize '566x738' -alpha off #{Shellwords.escape(@cover_image)}"
         `#{cmd}` rescue ''
       end
     end
