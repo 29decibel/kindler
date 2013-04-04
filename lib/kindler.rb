@@ -49,7 +49,7 @@ module Kindler
       page[:section] ||= DEFAULT_SECTION
       page[:count] = pages.count + 1
       page[:file_name] = "#{page[:count].to_s.rjust(3,'0')}.html"
-      page[:author] = 'unknown' if (page[:author]==nil or page[:author]=='')
+      page[:author] = '' unless page[:author]
       # escape special chars
       page[:title] = CGI::escapeHTML(page[:title])
       page[:title] = title if(page[:title] == "")

@@ -7,7 +7,9 @@
     <h2>
       <%= page[:title] %>
     </h2>
-    <p><em><%= page[:author] %></em><p>
+    <% if page[:author] != '' %>
+      <p><em><%= page[:author] %></em><p>
+    <% end%>
     <div><%= page[:content] %></div>
   </body>
 </html>
