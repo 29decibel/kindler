@@ -1,3 +1,6 @@
+## Kindler 
+[![Code Climate](https://codeclimate.com/github/29decibel/kindler.png)](https://codeclimate.com/github/29decibel/kindler)
+
 ## Todo
 * support inner reference, inner link can take to that article
 * refactor templates
