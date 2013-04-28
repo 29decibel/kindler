@@ -1,15 +1,24 @@
+<!DOCTYPE html>
 <html>
   <head>
     <meta content='text/html; charset=utf-8' http-equiv='Content-Type'/>
     <style type="text/css"><%= style %></style>
   </head>
   <body>
-    <h2>
-      <%= page[:title] %>
-    </h2>
-    <% if page[:author] != '' %>
-      <p><em><%= page[:author] %></em><p>
-    <% end%>
-    <div><%= page[:content] %></div>
+    <article>
+      <header>
+        <h2>
+          <%= page[:title] %>
+        </h2>
+        <div class="s2k-header-line"></div>
+        <% if page[:author] != '' %>
+          <p><em><%= page[:author] %></em><p>
+        <% end%>
+      </header>
+      <div><%= page[:content] %></div>
+      <footer class="s2k-article-footer">
+        Source: <a class="s2k-source-long" href="<%= page[:url]%>"><%= page[:url]%></a>
+      </footer>
+    </article>
   </body>
 </html>
