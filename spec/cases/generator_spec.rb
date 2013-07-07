@@ -61,7 +61,7 @@ describe "Mobi book file generator" do
     book.add_page :title=>'page3',:author=>'mike1',:content=>'<img src="http://images.fanpop.com/images/image_uploads/widescreen-season-4-wallpaper-lost-661159_1680_1050.jpg"/>this is the page 3',:wrap=>true
     book.generate
     book.should be_generated
-    File.should be_exist("./#{Kindler::Book::TMP_DIR_PREFIX}#{title}/1.jpg")
+    Dir.glob("./#{Kindler::Book::TMP_DIR_PREFIX}#{title}/*.jpg").length.should == 2
   end
 
   it "can access pages information before generate" do
@@ -105,7 +105,7 @@ describe "Mobi book file generator" do
     book.add_page :title=>'page3',:author=>'mike1',:url => 'http://media2.glamour-sales.com.cn/media/some_url',:content=>'<img src="/media/catalog/category/Stroili_banner_02.jpg"/>this is the page 3',:wrap=>true
     book.generate
     book.should be_generated
-    File.should be_exist("./#{Kindler::Book::TMP_DIR_PREFIX}#{title}/1.jpg")
+    Dir.glob("./#{Kindler::Book::TMP_DIR_PREFIX}#{title}/*.jpg").length.should == 2
   end
 
   it "should generate mobi books on specify output_dir " do

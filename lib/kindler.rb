@@ -6,6 +6,7 @@ require "cgi"
 require "erb"
 require "shellwords"
 require "fileutils"
+require 'thread'
 # require 'mini_magick'
 require_relative 'kindler/railtie' if defined?(Rails)
 require_relative "kindler/version"
@@ -152,37 +153,48 @@ module Kindler
     end
 
     def localize_images
-      images_count = 1
-      pages.each do |page|
-        article = Nokogiri::HTML(page[:content])
-        article.css('img').each do |img|
-          begin
-            # get remote address
-            image_remote_address = img.attr('src')
-            unless image_remote_address.start_with?('http')
-              image_remote_address = URI.join(page[:url], image_remote_address).to_s
-            end
-            # get local address
-            image_data = open(image_remote_address)
-            image_extname = get_image_extname(image_data,image_remote_address)
-            image_local_address = File.join(tmp_dir,"#{images_count}#{image_extname}")
-            # download images
-            debug "begin fetch image #{image_remote_address}"
-            debug "save to #{image_local_address}"
-            #`curl #{image_remote_address} > #{image_local_address}`
-            File.open(image_local_address,'wb') do |f|
-              f.write image_data.read
-            end
-            debug 'Image saved'
-            # replace local url address
-            img.attributes['src'].value = "#{image_local_address}"
-            page[:content] = article.inner_html
-            # add to manifest
-            local_images << "#{image_local_address}"
-            images_count += 1
-          rescue Exception => e
-            debug "got error when fetch and save image: #{e}"
+      threads = []
+      mutex = Mutex.new
+      pages.each_with_index do |page|
+        threads << Thread.new do
+          download_image_of_article(page, mutex)
+        end
+      end
+
+      # join the threads
+      threads.map(&:join)
+    end
+
+
+    def download_image_of_article(page, mutex)
+      article = Nokogiri::HTML(page[:content])
+      article.css('img').each do |img|
+        begin
+          # get remote address
+          image_remote_address = img.attr('src')
+          unless image_remote_address.start_with?('http')
+            image_remote_address = URI.join(page[:url], image_remote_address).to_s
           end
+          # get local address
+          image_data = open(image_remote_address)
+          image_extname = get_image_extname(image_data,image_remote_address)
+          image_name = (0...10).map{(65+rand(26)).chr}.join
+          image_local_address = File.join(tmp_dir,"#{image_name}#{image_extname}")
+          # download images
+          debug "begin fetch image #{image_remote_address}"
+          debug "save to #{image_local_address}"
+          #`curl #{image_remote_address} > #{image_local_address}`
+          File.open(image_local_address,'wb') do |f|
+            f.write image_data.read
+          end
+          debug 'Image saved'
+          # replace local url address
+          img.attributes['src'].value = "#{image_local_address}"
+          page[:content] = article.inner_html
+          # add to manifest
+          mutex.synchronize { local_images << "#{image_local_address}" }
+        rescue Exception => e
+          debug "got error when fetch and save image: #{e}"
         end
       end
     end
