@@ -6,9 +6,9 @@
 * refactor templates
 * fix image download
 
-## Is this gem is what you want?
-There is a alternative gem called [kindlerb](https://github.com/danchoi/kindlerb) can generate mobi books, the gem is also used
-for the website [KindleFeeder](http://kindlefeeder.com/) which is build by [Daniel Choi](http://danielchoi.com/software).
+## Is this gem what you want?
+There is an alternative gem called [kindlerb](https://github.com/danchoi/kindlerb) can generate mobi books, the gem is also used
+for the website [KindleFeeder](http://kindlefeeder.com/) which is built by [Daniel Choi](http://danielchoi.com/software).
 
 If you like to generate mobi book by some html files, you have to conform to the structure which author provide. But if you just
 want to generate mobi book in the fly, then you should try this gem.
