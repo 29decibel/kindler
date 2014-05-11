@@ -64,6 +64,7 @@ module Kindler
     end
 
     def generate
+      check_kindlegen
       make_generated_dirs
       localize_images if @keep_image
       prepare_conver_img
@@ -102,6 +103,13 @@ module Kindler
     private
     # make sure kindlegen is installed
     # you can use "sudo brew install " to install it
+    def check_kindlegen
+      unless system('kindleGen')
+        at_exit { puts "You don't seem to have kindleGen executable present in your system. See README for details." }
+        exit
+      end
+    end
+
     def kindlegen
       debug 'begin generate mobi'
       cmd = "kindleGen #{Shellwords.escape(tmp_dir)}/#{Shellwords.escape(title)}.opf #{@silent ? "> /dev/null" : ""}"
