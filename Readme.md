@@ -16,9 +16,9 @@ want to generate mobi book in the fly, then you should try this gem.
 BTW, we share the same internal way to generating mobi book by [KindleGen 2](http://www.amazon.com/gp/feature.html?ie=UTF8&docId=1000234621).
 
 ## Prerequisite
-### 1.kindlegen execute file from amazon
-### 2.imagemagick exist
-### 3.that's all
+1. kindlegen execute file from amazon
+2. imagemagick exist
+3. that's all
 
 ## Installation
 ```ruby
